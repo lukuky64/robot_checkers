@@ -13,7 +13,7 @@ roscore
 gb = gameBoard()
 ```
 
-4. Open another ubuntu terminal, cd to '/roboCheckers/src/robot_checkers/Checkers_AI_modded' and execute:
+4. Open another ubuntu terminal, cd to `/roboCheckers/src/robot_checkers/Checkers_AI_modded` and execute:
 ```Bash
 python3 main.py
 ```
