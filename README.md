@@ -8,7 +8,7 @@
 roscore
 ```
 
-3. Open matlab and in the console execute:
+3. Open matlab and in the console, execute:
 ```Bash
 gb = gameBoard()
 ```
@@ -17,4 +17,15 @@ gb = gameBoard()
 ```Bash
 python3 main.py
 ```
+
+5. In the matlab console, execute:
+```Bash
+gb.run()
+```
+
+6. To end matlab program, execute:
+```Bash
+gb.stop()
+```
+
 
