@@ -6,9 +6,9 @@ passed in through constructor-arguement.
 
 classdef MotionPlanner < handle
     properties (Constant)
-        endEffectorStepSize = 5 *1e-3; % m
+        endEffectorStepSize = 15 *1e-3; % m
         checkerPieceHeight = 5 *1e-3; % m
-        qHome = zeros(1,6);
+        qHome = [0 -pi/2 pi/2 0 0 0] % tune this parameter such that minimal joint angular displacement to reach board
     end
 
     properties
@@ -67,6 +67,7 @@ classdef MotionPlanner < handle
                 % perhaps change to .ikine6s if 6 DoF used ultimately 
                 qMatrix(i,:) = self.robot.ikcon(trajTransforms(:,:,i),qMatrix(i-1,:));
             end
+            
 
             % update q state and return trajectory
             self.q = qMatrix(end,:);
@@ -91,12 +92,12 @@ classdef MotionPlanner < handle
         function traj = trajectoryMakeMove(self,boardPos0,boardPosP)
             % transforms to board positions (half the height of a checkers'
             % piece above particular square center):
-            Tpos0 = self.Tboard*transl([(boardPos0-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(pi, 0, 0);
-            TposP = self.Tboard*transl([(boardPosP-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(pi, 0, 0);
+            Tpos0 = self.Tboard*transl([(boardPos0-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, pi, 0,'arm');
+            TposP = self.Tboard*transl([(boardPosP-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, pi, 0,'arm');
 
             % transforms to points above target board positions:
-            Tabove0 = Tpos0*transl(0, 0, 8*self.checkerPieceHeight);
-            TaboveP = TposP*transl(0, 0, 8*self.checkerPieceHeight);
+            Tabove0 = transl(0, 0, 20*self.checkerPieceHeight)*Tpos0;
+            TaboveP = transl(0, 0, 20*self.checkerPieceHeight)*TposP;
 
             % generate the component trajectories between interstitial 
             % waypoints of composite (full) trajectory:
