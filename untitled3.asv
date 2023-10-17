@@ -1,0 +1,19 @@
+close all
+clear all
+clf
+
+%% create robot and instantiate its motion planner
+robotObj = UR5;
+robot = robotObj.model;
+Thome = transl(0, .3, .4);
+Tboard = transl(0,.7,0);
+robot.teach()
+mp = MotionPlanner(robot, robot.ikcon(Thome), Tboard, .01, rpy2tr(0,0,));
+%% 
+traj = mp.trajectoryMakeMove([2 2],[5 5]);
+%%
+robot.plot(traj(1,:));
+hold on
+trplot(Tboard,'framelabel','Checkers Board','rgb','arrow');
+robot.plot(traj,'loop','trail','r-');
+hold off
