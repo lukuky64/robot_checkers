@@ -6,9 +6,9 @@ passed in through constructor-arguement.
 
 classdef MotionPlanner < handle
     properties (Constant)
-        endEffectorStepSize = 20 *1e-3; % m
+        endEffectorStepSize = 5 *1e-3; % m
         checkerPieceHeight = 5 *1e-3; % m
-        qHome = [0 -pi/2 3*pi/4 0 0 0];
+        qHome = zeros(1,6);
     end
 
     properties
@@ -87,11 +87,12 @@ classdef MotionPlanner < handle
         end
 
         % this function returns trajectory that implements a checkers move
+        % and then returns home
         function traj = trajectoryMakeMove(self,boardPos0,boardPosP)
             % transforms to board positions (half the height of a checkers'
             % piece above particular square center):
-            Tpos0 = self.Tboard*transl([(boardPos0-0.5).*self.squareSize self.checkerPieceHeight/2]);
-            TposP = self.Tboard*transl([(boardPosP-0.5).*self.squareSize self.checkerPieceHeight/2]);
+            Tpos0 = self.Tboard*transl([(boardPos0-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(pi, 0, 0);
+            TposP = self.Tboard*transl([(boardPosP-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(pi, 0, 0);
 
             % transforms to points above target board positions:
             Tabove0 = Tpos0*transl(0, 0, 8*self.checkerPieceHeight);
