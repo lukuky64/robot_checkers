@@ -13,4 +13,3 @@ interface_ = MULTIBOTGUI(bots_);
 %% Function testing
 %jointTest_ = [0,1,1,1,1];
 %interface_.moveRobot(jointTest_, 1)
-%%

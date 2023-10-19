@@ -14,7 +14,7 @@ classdef gameBoard < handle
             
             % Create a timer object
             obj.timerObj = timer('TimerFcn', @(~,~) obj.plotData(), ...
-                                 'Period', 0.25, ...             % Run every 1 second
+                                 'Period', 0.25, ...             % Run every 0.25 seconds
                                  'ExecutionMode', 'fixedRate');
             obj.next_iteration = 0;
         end
@@ -76,10 +76,54 @@ classdef gameBoard < handle
         end
 
 
+        function [movedFrom, movedTo, removedFrom] = compareCheckerStates(obj, previous, current)
+            % Transpose the matrices to make them easier to work with
+            previous = previous';
+            current = current';
+            
+            % Initialising empty arrays for the output
+            movedFrom = [];
+            movedTo = [];
+            removedFrom = [];
+            
+            % Finding removed checkers
+            for i = 1:size(previous, 1)
+                prev_checker = previous(i, :);
+                if ~any(ismember(current(:, 1:2), prev_checker(1:2), 'rows'))
+                    removedFrom = [removedFrom; prev_checker];
+                end
+            end
+            
+            % Finding moved checkers
+            for i = 1:size(current, 1)
+                curr_checker = current(i, :);
+                if ~any(ismember(previous(:, 1:2), curr_checker(1:2), 'rows'))
+                    movedTo = [movedTo; curr_checker];
+                end
+            end
+            
+            % Finding the original position of moved checkers
+            for i = 1:size(movedTo, 1)
+                moved_checker = movedTo(i, :);
+                for j = 1:size(previous, 1)
+                    prev_checker = previous(j, :);
+                    if moved_checker(3) == prev_checker(3) && ~ismember(prev_checker(1:2), current(:, 1:2), 'rows')
+                        movedFrom = [movedFrom; prev_checker];
+                    end
+                end
+            end
+
+            % Filter out the moved checkers from the removedFrom list
+            if ~isempty(movedFrom)
+                removedFrom = setdiff(removedFrom, movedFrom, 'rows');
+            end
+        end
+
+
         function plotData(obj)
             % Check if data is empty
             if isempty(obj.gameBoardObj.data)
-                disp('No data');
+                disp('No data...');
                 return;
             end
 
@@ -87,23 +131,28 @@ classdef gameBoard < handle
                 newMatrix = getLastCellAsMatrix(obj);
                 lastBoard = obj.localGameBoard{end};
                 
-                if isequal(size(lastBoard), size(newMatrix))  % Check if sizes are the same
-                    if lastBoard == newMatrix  % Element-wise comparison
-                        % disp('skipping'); debugging
-                        return;
-                    end
+                if isequal(lastBoard, newMatrix)  % if the state of the board hasn't changed, don't update
+                    %disp('skipping'); %debugging
+                    return;
+                else
+                    disp("New data...");
+                    [movedFrom, movedTo, removedFrom] = obj.compareCheckerStates(lastBoard, newMatrix);
+                    movedFrom
+                    movedTo
+                    removedFrom
                 end
             end
 
             obj.localGameBoard{end+1} = getLastCellAsMatrix(obj);
-
-           % gameBoardToRealDimensions(obj); % !!! last error: Arrays have incompatible sizes for this operation.
+           % obj.gameBoardToRealDimensions(obj); % !!! last error: Arrays have incompatible sizes for this operation.
 
             obj.next_iteration = length(obj.localGameBoard);
             
             % Plot the data
             figure(1); % Reuse the same figure
-            cla; % Clear the current axes
+            cla; % Clear the current figure
+            
+            % load new gameboard state
             x = obj.localGameBoard{end}(1, :);
             y = obj.localGameBoard{end}(2, :);
             color = obj.localGameBoard{end}(3, :);
