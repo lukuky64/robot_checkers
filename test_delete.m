@@ -2,22 +2,37 @@ close all
 clear all
 clf
 
-%% create robot and instantiate its motion planner
+%% create robot and instanticate its motion planner
 robotObj = DobotMagician;
-%%
+%% delete
 robot = robotObj.model;
-Tboard = transl(0,.2,0);
-mp = MotionPlanner(robot, Tboard, .01, rpy2tr(0,0,-pi/2));
+robot.ikcon(transl(.1,.1,.1),'mask',[1 1 1 0 0 0])
 %%
-traj = mp.trajectoryMakeMove([2 2],[5 5]);
+squareSize = .03;
+boardLength = squareSize*8;
+boardHeight = 0.05;
+robot = robotObj.model;
+Tboard = transl(-boardLength/2,.04,boardHeight);
+mp = MotionPlanner(robot, Tboard, squareSize, rpy2tr(0,0,pi/2));
 %%
-b = Board(.32,.05,Tboard);
+traj = mp.trajectoryMakeMove([2 2],[8 8]);
+%%
+b = Board(boardLength,boardHeight,Tboard);
 hold on
 axis([-.5 .5 -.2 1.2 -.2 .5]);
 b.plotBoard();
+
 trplot(Tboard,'framelabel','Checkers Board','rgb','arrow');
 robot.plot(traj,'loop','trail','r-','nojoints','jointdiam',2);
 hold off
+%%
+b = Board(boardLength,boardHeight,Tboard);
+hold on
+b.plotBoard();
+trplot(Tboard,'framelabel','Checkers Board','rgb','arrow');
+mp.robot.teach();
+axis([-.3 .3 -.2 .6 -.2 .6])
+
 %%
 mp.RRMCNextQ([1,1,1]);
 mp.robot.plot(mp.q);
