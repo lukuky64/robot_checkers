@@ -197,9 +197,9 @@ class Graphics:
 		self.message = False
 		
 		# ROS specific initialisation
-		rospy.init_node('test_publisher', anonymous=True)
-		self.pub = rospy.Publisher('/test_topic', Int32MultiArray, queue_size=10)
-		self.rate = rospy.Rate(10)  # 1 Hz
+		rospy.init_node('board_state_publisher', anonymous=True)
+		self.pub = rospy.Publisher('/board_state', Int32MultiArray, queue_size=10, latch=True)
+		self.rate = rospy.Rate(10)  # 10 Hz
 		self.array_to_publish = Int32MultiArray()
 		self.last_published_array = None
 
