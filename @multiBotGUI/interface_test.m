@@ -8,7 +8,7 @@ bot1 = DobotMagician(baseTr_1);
 bots_ = {bot1};
 
 %% Create interface instance
-interface_ = MULTIBOTGUI(bots_);
+interface_ = MultiBotGUI(bots_);
 
 %% Function testing
 %jointTest_ = [0,1,1,1,1];

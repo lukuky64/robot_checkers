@@ -4,18 +4,15 @@ clf
 
 %% create robot and instanticate its motion planner
 robotObj = DobotMagician;
-%% delete
-robot = robotObj.model;
-robot.ikcon(transl(.1,.1,.1),'mask',[1 1 1 0 0 0])
 %%
 squareSize = .03;
 boardLength = squareSize*8;
 boardHeight = 0.05;
 robot = robotObj.model;
 Tboard = transl(-boardLength/2,.04,boardHeight);
-mp = MotionPlanner(robot, Tboard, squareSize, rpy2tr(0,0,pi/2));
+mp = MotionPlanner(robot, Tboard, squareSize, rpy2tr(0,0,pi/2, transl(-.05,.03,0)));
 %%
-traj = mp.trajectoryMakeMove([2 2],[8 8]);
+traj = mp.trajectorySquare2Bin([]);
 %%
 b = Board(boardLength,boardHeight,Tboard);
 hold on
@@ -23,7 +20,8 @@ axis([-.5 .5 -.2 1.2 -.2 .5]);
 b.plotBoard();
 
 trplot(Tboard,'framelabel','Checkers Board','rgb','arrow');
-robot.plot(traj,'loop','trail','r-','nojoints','jointdiam',2);
+mp.robot.animate([1 1 1 1 1]);
+%robot.plot(traj,'loop','trail','r-','nojoints','jointdiam',2);
 hold off
 %%
 b = Board(boardLength,boardHeight,Tboard);

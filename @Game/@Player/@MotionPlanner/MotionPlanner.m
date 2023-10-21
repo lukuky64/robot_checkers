@@ -7,7 +7,7 @@ passed in through constructor-arguement.
 classdef MotionPlanner < handle
     properties (Constant)
         endEffectorStepSize = 15 *1e-3; % m
-        checkerPieceHeight = 15 *1e-3; % m
+        checkerPieceHeight = 5 *1e-3; % m
         qHome = [pi/2 0 pi/4 3*pi/4 0] % tune this parameter such that minimal joint angular displacement to reach board. Will vary wrt. robot
     end
 
@@ -18,28 +18,33 @@ classdef MotionPlanner < handle
         % x-y plane coincident with surface, z points up and y direction is
         % from white-piece team towards black-piece team
         squareSize % board square side length
+        numPrisoners % number of slain pieces of other player's
+        Tbin %
     end
 
     methods
         % constructor receives information about the robot model and
         % checker board
-        function obj = MotionPlanner(serialLink, Tboard, squareSize, Tbase)
-            if nargin > 3
+        function obj = MotionPlanner(serialLink, Tboard, squareSize, Tbin, Tbase)
+            if nargin > 4
                 obj.robot = serialLink;
                 obj.q = obj.qHome;
                 obj.robot.base = Tbase;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
+                obj.Tbin = Tbin;
+                obj.numPrisoners = 0;
             % no robot base transform Tbase provided --> assumes origin
             % base:
-            elseif nargin > 2
+            elseif nargin > 3
                 obj.robot = serialLink;
                 obj.q = obj.qHome;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
+                obj.Tbin = Tbin;
+                obj.numPrisoners = 0;
             else
-                error("Must pass SerialLink object, initial joint-state " + ...
-                    "vector and checker board parameters as construction" + ...
+                error("Must pass appropriate parameters as construction" + ...
                     " arguements.");
             end
         end
@@ -66,8 +71,8 @@ classdef MotionPlanner < handle
             trajAboveToPos = self.cartesianTrajectoryTo(Tpos);
             
             % compile and return composite (full) trajectory:
-            size1 = size(trajToAbove0,1);
-            size2 = size(trajAbove0ToPos0,1);
+            size1 = size(trajToAbove,1);
+            size2 = size(trajAboveToPos,1);
             traj = zeros(size1+size2, self.robot.n);
             traj(1:size1,:) = trajToAbove;
             traj(size1+1:size(traj,1),:) = trajAboveToPos;
@@ -96,7 +101,7 @@ classdef MotionPlanner < handle
             size3 = size(trajPos0ToAbove0,1);
             size4 = size(trajAbove0ToAboveP,1);
             size5 = size(trajAbovePToPosP,1);
-            traj = zeros(size3+size4+size5+size6, self.robot.n);
+            traj = zeros(size3+size4+size5, self.robot.n);
             traj(1:size3,:) = trajPos0ToAbove0;
             traj(size3+1:size3+size4,:) = trajAbove0ToAboveP;
             traj(size3+size4+1:size(traj,1),:) = trajAbovePToPosP;
@@ -106,23 +111,25 @@ classdef MotionPlanner < handle
         % this function returns trajectory that proceeds an EE grip-dropoff:
         % it moves EE from square boardPos to above quare boardPos, and 
         % then returns robot to home pose using joint interpolation.
-        function traj = trajectorySquare2Home(self,boardPos)
+        function traj = trajectorySquare2Bin(self,boardPos)
             % transforms to board positions (half the height of a checkers'
             % piece above particular square center):
             Tpos = self.Tboard*transl([(boardPos-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
             % transforms to points above target board positions:
             Tabove = transl(0, 0, 5*self.checkerPieceHeight)*Tpos;
+            TeeBin = transl(0, 0, self.numPrisoners*self.checkerPieceHeight)*self.Tbin%*rpy2tr(0, 0, -pi/2); %%%%% need to tune !!!!!!!!!!!!
 
             % generate the component trajectories between interstitial 
             % waypoints of composite (full) trajectory:
             trajPosToAbove = self.cartesianTrajectoryTo(Tabove);
-            trajAboveToHome = self.trajectoryToHome();
+            trajAboveToBin = self.cartesianTrajectoryTo(TeeBin);
             % compile and return composite (full) trajectory:
             size6 = size(trajPosToAbove,1);
-            size7 = size(trajAboveToHome,1);
+            size7 = size(trajAboveToBin,1);
             traj = zeros(size6+size7, self.robot.n);
             traj(1:size6,:) = trajPosToAbove;
-            traj(size6+1:size(traj,1),:) = trajAboveToHome;
+            traj(size6+1:size(traj,1),:) = trajAboveToBin;
+            self.numPrisoners = self.numPrisoners+1;
         end
 
         % FOR DEMO PURPOSES ONLY: DOESN'T WAIT FOR GRIPPING FUNCTION

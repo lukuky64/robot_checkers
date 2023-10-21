@@ -1,7 +1,7 @@
 % To Do:
 % Add cartesian (tc = ctraj(T0, T1, n)) control also
 
-classdef MULTIBOTGUI < handle
+classdef MultiBotGUI < handle
 
     properties
         robot_ = {};  % using cells
