@@ -7,24 +7,23 @@ classdef gameBoard < handle
         next_iteration;
         board_; % physical gameboard object class
         tasks_ = {};
-        sideLineTr; % this is where all the checkers that are out go
-        checkerHeight_;
+        %sideLineTr; % this is where all the checkers that are out go
+        %checkerHeight_;
     end
     
     methods
         function obj = gameBoard()
-            obj.gameSubscriber = subscriber_gameBoard('/board_state', 'std_msgs/Int32MultiArray');
+            obj.gameSubscriber = ros_subscriber('/board_state', 'std_msgs/Int32MultiArray');
     
             % initialising the sideline
-            obj.sideLineTr = transl(-0.1,0,0);
+            %obj.sideLineTr = transl(-0.1,0,0);
             % assigning the checker height
-            obj.checkerHeight_ = 0.005; % 5mm
+            %obj.checkerHeight_ = 0.005; % 5mm
             % initialising and plotting the physical gameboard 
-            Tboard = transl(0,0.2,0);
+            %Tboard = transl(0,0.2,0);
             %obj.board_ = Board(0.32, 0.05, Tboard);
             %figure(1);
             %obj.board_.plotBoard();
-            axis equal;
             
             % Create a timer object
             obj.timerObj = timer('TimerFcn', @(~,~) obj.plotData(), ...
@@ -206,7 +205,6 @@ classdef gameBoard < handle
                     [movedFrom, movedTo, removedFrom] = obj.compareCheckerStates(lastBoard, newMatrix);
 
                     obj.assignTasks(movedFrom, movedTo, removedFrom);
-                    obj.tasks_
 
                 end
             end

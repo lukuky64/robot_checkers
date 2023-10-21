@@ -1,4 +1,4 @@
-classdef subscriber_gameBoard < handle
+classdef ros_subscriber < handle
     properties
         subscriber;
         data;
@@ -7,7 +7,7 @@ classdef subscriber_gameBoard < handle
     end
     
     methods
-        function obj = subscriber_gameBoard(topicName, messageType)
+        function obj = ros_subscriber(topicName, messageType)
             try
                 rosnode('list');
             catch
