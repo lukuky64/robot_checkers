@@ -130,6 +130,21 @@ classdef gameBoard < handle
             if ~isempty(movedFrom)
                 removedFrom = setdiff(removedFrom, movedFrom, 'rows');
             end
+
+            % converting from top left as origin to bottom left
+            movedFrom = obj.convertToNewOrigin(movedFrom)
+            movedTo = obj.convertToNewOrigin(movedTo)
+            removedFrom = obj.convertToNewOrigin(removedFrom)
+        end
+
+
+        function newLocation = convertToNewOrigin(obj, currentLocation)
+            boardSize = 7;
+            if ~isempty(currentLocation)
+                currentLocation(2) = boardSize - currentLocation(2);
+            end
+            newLocation = currentLocation;
+            
         end
 
         function Tr = convertIndexToTrans(obj, indexPos)
@@ -151,6 +166,7 @@ classdef gameBoard < handle
             Tr = [rotation_, rotatedVector; 0 0 0 1];
         end
 
+
         function plotTr(obj, Tr, colour)
             figure(1);
             if colour == 1
@@ -164,25 +180,21 @@ classdef gameBoard < handle
         function assignTasks(obj, movedFrom, movedTo, removedFrom)
             tasksGrouped = {};
 
+            % set player who's turn it is
+            tasksGrouped{1} = movedFrom(3);
+
             if (~isempty(movedFrom) && ~isempty(movedTo))
-                %startTr = obj.convertIndexToTrans(movedFrom);
-                tasksGrouped{1} = movedFrom;
-                tasksGrouped{2} = movedTo;
-                %obj.plotTr(startTr, movedFrom(3));
-                obj.tasks_{end+1} = tasksGrouped;
-                
+                tasksGrouped{2} = [movedFrom(1:2); movedTo(1:2)];
             end
 
             if (~isempty(removedFrom))
-                %removedTr = obj.convertIndexToTrans(removedFrom);
-                tasksGrouped{1} = removedFrom;
-                %obj.plotTr(removedTr, removedFrom(3));
-                % !!! what happens if more than 1 checker is out?? !!!
-                tasksGrouped{2} = -1; % move to side
-                %obj.sideLineTr = obj.sideLineTr * transl(0,0, obj.checkerHeight_); % offsetting for next checker to be stacked on top
-                %obj.plotTr(obj.sideLineTr, removedFrom(3));
-                obj.tasks_{end+1} = tasksGrouped;
+                removedArray = [];
+                for i = 1:height(removedFrom)
+                    removedArray = [removedArray; removedFrom(i, 1:2)];
+                end
+                tasksGrouped{3} = removedArray;
             end
+            obj.tasks_{end+1} = tasksGrouped;
         end
 
 
