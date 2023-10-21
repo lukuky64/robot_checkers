@@ -13,7 +13,7 @@ classdef gameBoard < handle
     
     methods
         function obj = gameBoard()
-            obj.gameSubscriber = subscriber_gameBoard('/test_topic', 'std_msgs/Int32MultiArray');
+            obj.gameSubscriber = subscriber_gameBoard('/board_state', 'std_msgs/Int32MultiArray');
     
             % initialising the sideline
             obj.sideLineTr = transl(-0.1,0,0);
@@ -21,9 +21,9 @@ classdef gameBoard < handle
             obj.checkerHeight_ = 0.005; % 5mm
             % initialising and plotting the physical gameboard 
             Tboard = transl(0,0.2,0);
-            obj.board_ = Board(0.32, 0.05, Tboard);
-            figure(1);
-            obj.board_.plotBoard();
+            %obj.board_ = Board(0.32, 0.05, Tboard);
+            %figure(1);
+            %obj.board_.plotBoard();
             axis equal;
             
             % Create a timer object
@@ -165,33 +165,25 @@ classdef gameBoard < handle
         function assignTasks(obj, movedFrom, movedTo, removedFrom)
             tasksGrouped = {};
 
-            if (~isempty(movedFrom))
-                startTr = obj.convertIndexToTrans(movedFrom);
-                tasksGrouped{1} = startTr;
-                obj.plotTr(startTr, movedFrom(3));
+            if (~isempty(movedFrom) && ~isempty(movedTo))
+                %startTr = obj.convertIndexToTrans(movedFrom);
+                tasksGrouped{1} = movedFrom;
+                tasksGrouped{2} = movedTo;
+                %obj.plotTr(startTr, movedFrom(3));
+                obj.tasks_{end+1} = tasksGrouped;
                 
             end
-
-            if (~isempty(movedTo))
-                endTr = obj.convertIndexToTrans(movedTo);
-                tasksGrouped{2} = endTr;
-                obj.plotTr(endTr, movedTo(3));
-            end
-            
-            obj.tasks_{1} = tasksGrouped;
 
             if (~isempty(removedFrom))
-                removedTr = obj.convertIndexToTrans(removedFrom);
-                tasksGrouped{1} = removedTr;
-                
-                obj.plotTr(removedTr, removedFrom(3));
-                
-                tasksGrouped{2} = obj.sideLineTr; % move to side
-                obj.sideLineTr = obj.sideLineTr * transl(0,0, obj.checkerHeight_); % offsetting for next checker to be stacked on top
-
-                obj.plotTr(obj.sideLineTr, removedFrom(3));
+                %removedTr = obj.convertIndexToTrans(removedFrom);
+                tasksGrouped{1} = removedFrom;
+                %obj.plotTr(removedTr, removedFrom(3));
+                % !!! what happens if more than 1 checker is out?? !!!
+                tasksGrouped{2} = -1; % move to side
+                %obj.sideLineTr = obj.sideLineTr * transl(0,0, obj.checkerHeight_); % offsetting for next checker to be stacked on top
+                %obj.plotTr(obj.sideLineTr, removedFrom(3));
+                obj.tasks_{end+1} = tasksGrouped;
             end
-            obj.tasks_{2} = tasksGrouped;
         end
 
 
@@ -214,6 +206,7 @@ classdef gameBoard < handle
                     [movedFrom, movedTo, removedFrom] = obj.compareCheckerStates(lastBoard, newMatrix);
 
                     obj.assignTasks(movedFrom, movedTo, removedFrom);
+                    obj.tasks_
 
                 end
             end
