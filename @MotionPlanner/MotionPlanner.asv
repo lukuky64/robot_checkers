@@ -32,7 +32,7 @@ classdef MotionPlanner < handle
                 obj.robot.base = Tbase;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
-                obj.Tbin = Tbin;
+                obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
                 obj.numPrisoners = 0;
             % no robot base transform Tbase provided --> assumes origin
             % base:
@@ -41,7 +41,7 @@ classdef MotionPlanner < handle
                 obj.q = obj.qHome;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
-                obj.Tbin = Tbin;
+                obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
                 obj.numPrisoners = 0;
             else
                 error("Must pass appropriate parameters as construction" + ...
@@ -50,8 +50,8 @@ classdef MotionPlanner < handle
         end
 
         % -----------------------------------------------------------------
-        % Note: the calling of the following 3 functions, with gripper close
-        % and open commands being called between them, enable a checkers
+        % Note: the calling of the following 5 functions, with gripper close
+        % and open commands being called between them, enable a full checkers
         % move. To make compound checkers moves, function 
         % trajectorySquare2Square() should be called multiple times.
 
@@ -105,6 +105,24 @@ classdef MotionPlanner < handle
             traj(1:size3,:) = trajPos0ToAbove0;
             traj(size3+1:size3+size4,:) = trajAbove0ToAboveP;
             traj(size3+size4+1:size(traj,1),:) = trajAbovePToPosP;
+        end
+        
+        % ---------- 3 ----------
+        % 
+        function traj = trajectorySquareToAbove(self,boardPos)
+            % transform to square:
+            Tpos = self.Tboard*transl([(boardPos-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
+            % transform to point above square:
+            Tabove = transl(0, 0, 5*self.checkerPieceHeight)*Tpos;
+            
+            traj = self.cartesianTrajectoryTo(Tabove);
+            
+            % compile and return composite (full) trajectory:
+            size1 = size(trajToAbove,1);
+            size2 = size(trajAboveToPos,1);
+            traj = zeros(size1+size2, self.robot.n);
+            traj(1:size1,:) = trajToAbove;
+            traj(size1+1:size(traj,1),:) = trajAboveToPos;
         end
 
         % ---------- 3 ----------

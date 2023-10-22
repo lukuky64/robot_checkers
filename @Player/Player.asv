@@ -14,7 +14,7 @@ classdef Player < handle
             % moving Player's piece:
             movePositions = self.movePositions(task);
             traj = self.mp.trajectoryMoveToSquare(movePositions(1,:));
-            if size(movePositions,1) > 2
+            if movePositions > 2
                 for i=2:size(movePositions,1)-1
                     traj = [traj; self.mp.trajectorySquareToSquare( ...
                         movePositions(i-1,:), movePositions(i,:))];
@@ -26,14 +26,14 @@ classdef Player < handle
                 (end,:))];
             
             % moving prisoners to bin
-            if size(movePositions,1) > 2
+            if movePositions > 2
                 prisonerPositions = task{3};
                 for i=1:size(prisonerPositions,1)
                     traj = [traj; self.mp.trajectoryMoveToSquare( ...
                         prisonerPositions(i,:))];
                     traj = [traj; self.mp.trajectorySquareToBin( ...
                         prisonerPositions(i,:))];
-                    traj = [traj; self.mp.trajectoryMoveToAboveBin()];
+                    traj = [traj; trajectoryMoveToAboveBin()];
                 end
             end
             
