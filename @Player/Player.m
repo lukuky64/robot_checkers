@@ -54,7 +54,11 @@ classdef Player < handle
     methods (Static)
         function positions = movePositions(task)
             numPrisoners = size(task{3},1);
-            positions = zeros( 1+numPrisoners, 2);
+            if numPrisoners == 0
+                positions = zeros(2, 2);
+            else
+                positions = zeros( 1+numPrisoners, 2);
+            end
             positions(1,:) = task{2}(1,:);
             for i=2:numPrisoners
                 positions(i,:) = Player.interstitialPosition( task{3}(i-1,:), ...

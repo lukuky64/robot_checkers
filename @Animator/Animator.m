@@ -34,7 +34,7 @@ classdef Animator < handle
             self.cobot.animate(cobotQ0);
         end
 
-        function animatePlayerMove(self,traj,vargin)
+        function animatePlayerMove(self,traj,varargin)
             % parse option of dobot or cobot:
             robotSelection;
             for i = 1:2:length(varargin)

@@ -9,7 +9,7 @@ classdef Game < handle
         boardHeight = .05; % checkers board height [m] (if change, change Tboard)
         Tboard = transl(-(.035*8)/2,.04,.05); % checkers board transform (ensure no rotation wrt. world)
         TbinDobot = transl(-.2,.2,0);
-        TbinCobot = transl(0,0,0) %---------
+        TbinCobot = transl(0,0,0); %---------
     end
 
     properties
@@ -36,15 +36,16 @@ classdef Game < handle
             gameWinner = 0;
             while gameWinner == 0
                 if ~isempty(self.gameBoard.tasks_)
-                    if self.gameBoard.tasks_{1}{1} == 0 % blue/cobot turn
-                        traj = self.playerBlue.processTaskTrajectory(tasks_{1});
+                    task = self.gameBoard.tasks_{1};
+                    if task{1} == 0 % blue/cobot turn
+                        traj = self.playerBlue.processTaskTrajectory(task);
                         self.animator.animatePlayerMove(traj,'robot','cobot');
                         self.gameBoard.removeTask(1);
                         if self.playerBlue.hasWon()
                             gameWinner = 'blue';
                         end
-                    elseif self.gameBoard.tasks_{1}{1} == 1 % red/dobot turn
-                        traj = self.playerRed.processTaskTrajectory(tasks_{1});
+                    elseif task{1} == 1 % red/dobot turn
+                        traj = self.playerRed.processTaskTrajectory(task);
                         self.animator.animatePlayerMove(traj,'robot','dobot');
                         self.gameBoard.removeTask(1);
                         if self.playerRed.hasWon()
@@ -52,6 +53,7 @@ classdef Game < handle
                         end
                     end
                 end
+            pause(0.1)
             end
             display("The "+gameWinner+" team hasn won the game.")
         end
