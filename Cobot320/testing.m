@@ -6,9 +6,9 @@
             link(1) = Link('d', 0.1739, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-165 165]));
             link(2) = Link('d', 0.08878, 'a', 0.135, 'alpha', 0,'offset',pi/2, 'qlim', deg2rad([-165 165]));
             link(3) = Link('d', -0.08878, 'a', 0.120, 'alpha', 0, 'qlim', deg2rad([-165 165]));
-            link(4) = Link('d', 0.08878, 'a', 0.095, 'alpha', 0, 'qlim', deg2rad([-165 165]));
-            link(5) = Link('d', 0.06550, 'a', 0, 'alpha', 0, 'qlim', deg2rad([-165 165]));
-            link(6) = Link('d', 0, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-175 175]));
+            link(4) = Link('d', 0.08878, 'a', 0, 'alpha', pi/2,'offset',pi/2, 'qlim', deg2rad([-165 165]));
+            link(5) = Link('d', 0.095, 'a', 0, 'alpha', pi/2,'offset',pi, 'qlim', deg2rad([-165 165]));
+            link(6) = Link('d',0.0655, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-175 175]));
 
             
 
@@ -28,8 +28,8 @@
          
              
             % Plot the robot
-            robot.plot(q,'workspace',workspace,'scale',scale); 
-            
+            robot.plot(q,'workspace',workspace); 
+            robot.teach
         
             % 4.4 Get the current joint angles based on the position in the model
            % q = robot.getpos()  ;

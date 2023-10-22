@@ -6,42 +6,40 @@ classdef MyCobot320 < RobotBaseClass
     % 41013. No guarentee is made about the accuracy or correctness of the
     % of the DH parameters of the accompanying ply files. Do not assume
     % that this matches the real robot!
-
-    properties(Access = public)  
+    
+    properties(Access = public)
         plyFileNameStem = 'MyCobot320';
-        % useTool = 1;  
-        % toolFilename = 'MyCobot320EndEffector.ply';
         
         
-
     end
     methods (Access = public)
-%% Constructor 
+        %% Constructor
         function self = MyCobot320(baseTr)
-			self.CreateModel();
-            if nargin == 1			
-				self.model.base = self.model.base.T * baseTr;
-            end            
-
+            self.CreateModel();
+            if nargin == 1
+                self.model.base = self.model.base.T * baseTr;
+            end
+            
             % Overiding the default workspace for this small robot
-            self.workspace = [-0.8 0.8 -0.8 0.8 -0.01 0.5];   
-
-            self.PlotAndColourRobot();         
+            self.workspace = [-0.8 0.8 -0.8 0.8 -0.01 0.5];
+            
+            self.PlotAndColourRobot();
         end
-
-%% CreateModel
+        
+        %% CreateModel
         function CreateModel(self)
             link(1) = Link('d', 0.1739, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-165 165]));
             link(2) = Link('d', 0.08878, 'a', 0.135, 'alpha', 0,'offset',pi/2, 'qlim', deg2rad([-165 165]));
             link(3) = Link('d', -0.08878, 'a', 0.120, 'alpha', 0, 'qlim', deg2rad([-165 165]));
-            link(4) = Link('d', 0.08878, 'a', 0.095, 'alpha', 0, 'qlim', deg2rad([-165 165]));
-            link(5) = Link('d', 0.06550, 'a', 0, 'alpha', 0, 'qlim', deg2rad([-165 165]));
-            link(6) = Link('d', 0, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-175 175]));
+            link(4) = Link('d', 0.08878, 'a', 0, 'alpha', pi/2,'offset',pi/2, 'qlim', deg2rad([-165 165]));
+            link(5) = Link('d', 0.095, 'a', 0, 'alpha', pi/2,'offset',pi, 'qlim', deg2rad([-165 165]));
+            link(6) = Link('d',0.0655, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-175 175]));
             
-            useTool = 1;  
-            toolFilename = 'MyCobot320EndEffector.ply';
-
-            self.model = SerialLink(link,'name',self.name); 
-        end    
+             self.useTool = 1;
+             self.toolFilename = 'MyCobot320EndEffector.ply';
+           
+            
+            self.model = SerialLink(link,'name',self.name);
+        end
     end
 end
