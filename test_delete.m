@@ -2,8 +2,12 @@ close all
 clear all
 clf
 %%
+%--------%--------%--------%--------%--------%--------%--------%--------%--------
+% NEXT 2 SECTIONS FOR TUNING COBOT MOTION
+%--------%--------%--------%--------%--------%--------%--------%--------
+%% RUN THIS FIRST TO SETUP ENVIRONMENT
 dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
-        cobotQ0 = [pi/2 0 3*pi/4 -pi/4 -pi/2 0]; %--------
+        cobotQ0 = [pi/2 pi/8 3*pi/2 -3*pi/8 -pi/2 0]; %--------
         squareSize = .035; % checkers square size [m] (if change, change Tboard)
         boardHeight = .05; % checkers board height [m] (if change, change Tboard)
         Tboard = transl(-(.035*8)/2,.04,.05); % checkers board transform (ensure no rotation wrt. world)
@@ -16,12 +20,15 @@ dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
             cobot = cobotRobotBaseClass.model;
         board = Board(squareSize*8,boardHeight,Tboard);
 board.plotBoard();
-%%
+%% EXPERIMENT WITH CHANGES TO mp.cartesianTrajectoryTo() HERE; IF YOU CHANGE
+% MOTIONPLANNER BE SURE TO REVERSE CHANGES 
 mp = MotionPlanner(cobot,cobotQ0,Tboard,squareSize,TbinCobot,'cobot');
-traj = mp.cartesianTrajectoryTo(transl(0,2,2));
+mp.robot.qlim(1:5,:) = deg2rad([-165 90; 0 90; 0 90; -90 0; -90 0]);
+mp.qHome = cobotQ0;
+traj = mp.cartesianTrajectoryTo(transl(0, 0, 0.05));
 for i=1:size(traj,1)
     cobot.animate(traj(i,:));
-    pause(1);
+    pause(.12);
 end
 
 %%
