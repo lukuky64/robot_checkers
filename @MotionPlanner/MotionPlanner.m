@@ -205,7 +205,7 @@ classdef MotionPlanner < handle
         % velocity (m/s)
         function nextQ = RRMCNextQ(self, eeVel)
             dt = 0.001; % physical seconds per animation step – eg. 0.001 renders 1 mm/step
-            J = self.robot.jacob0(self.q);
+            J = self.robot.model.jacob0(self.q);
             invJ = inv(J(1:5,:));
             jointVel = invJ*[eeVel 0 0]';
             nextQ = self.q + (jointVel*dt)';

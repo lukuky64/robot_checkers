@@ -1,4 +1,4 @@
-classdef gameBoard < handle
+classdef GameBoard < handle
     properties
         gameSubscriber;  % Instance of the subscriber_gameBoard class
         localGameBoard;
@@ -12,8 +12,8 @@ classdef gameBoard < handle
     end
     
     methods
-        function obj = gameBoard()
-            obj.gameSubscriber = ros_subscriber('/board_state', 'std_msgs/Int32MultiArray');
+        function obj = GameBoard()
+            obj.gameSubscriber = Ros_subscriber('/board_state', 'std_msgs/Int32MultiArray');
     
             % initialising the sideline
             %obj.sideLineTr = transl(-0.1,0,0);
@@ -137,7 +137,7 @@ classdef gameBoard < handle
             removedFrom = obj.convertToNewOrigin(removedFrom)
         end
 
-
+        % Flips the 'y' axis so origin is bottom left
         function newLocation = convertToNewOrigin(obj, currentLocation)
             boardSize = 7;
             if ~isempty(currentLocation)
@@ -166,7 +166,7 @@ classdef gameBoard < handle
             Tr = [rotation_, rotatedVector; 0 0 0 1];
         end
 
-
+        % plotting transforms for visualisation
         function plotTr(obj, Tr, colour)
             figure(1);
             if colour == 1
@@ -176,7 +176,8 @@ classdef gameBoard < handle
             end
         end
         
-
+        % creating a task for the robot players to complete. Storing new
+        % tasks at the end of the class variable tasks_ cell
         function assignTasks(obj, movedFrom, movedTo, removedFrom)
             tasksGrouped = {};
 
