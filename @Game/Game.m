@@ -24,11 +24,11 @@ classdef Game < handle
             self.animator = Animator(self.dobotQ0,self.cobotQ0,self.squareSize, ...
                 self.boardHeight,self.Tboard);
             self.playerRed = Player(self.animator.dobot,self.dobotQ0, ...
-                self.Tboard,self.squareSize,self.TbinDobot);
+                self.Tboard,self.squareSize,self.TbinDobot,'dobot');
             self.playerBlue = Player(self.animator.cobot,self.cobotQ0, ...
-                self.Tboard,self.squareSize, self.TbinCobot);
-            self.gameBoard = GameBoard();
-            self.startGame();
+                self.Tboard,self.squareSize, self.TbinCobot,'cobot');
+            %self.gameBoard = GameBoard();
+            %self.startGame();
         end
 
         function startGame(self)

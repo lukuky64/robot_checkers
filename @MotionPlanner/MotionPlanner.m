@@ -196,8 +196,8 @@ classdef MotionPlanner < handle
             % set transforms and points of trajectory extrema:
             T0 = self.robot.fkine(self.q).T;
             P0 = transl(T0);
-            if self.IKmethod == 'ikcon'
-                Tp = Tp*inv(transl(0,0.8,0)*rpy2tr(-pi/2,0,0));
+            if self.IKmethod == 'cobot'
+                Tp = Tp*inv(transl(0,.095,0)*rpy2tr(-pi/2,0,0));
             end
             Pp = transl(Tp);
 
@@ -216,16 +216,16 @@ classdef MotionPlanner < handle
             trajTransforms = ctraj(T0, Tp, fractDists);
             qMatrix = zeros(steps,self.robot.n);
             qMatrix(1,:) = self.q;
-            if self.IKmethod == 'ikine'
+            if self.IKmethod == 'dobot'
                 for i=2:steps
                     % perhaps change to .ikine6s if 6 DoF used ultimately 
                     qMatrix(i,:) = self.robot.ikine(trajTransforms(:,:,i), ...
                         'q0',qMatrix(i-1,:),'mask',[1 1 1 0 1 1],'forceSoln');
                 end
-            elseif self.IKmethod == 'ikcon'
+            elseif self.IKmethod == 'cobot'
                 for i=2:steps
                     % perhaps change to .ikine6s if 6 DoF used ultimately 
-                    qMatrix(i,:) = self.robot.ikcon(trajTransforms(:,:,i),qMatrix(i-1,:));
+                    qMatrix(i,:) = self.robot.ikine(trajTransforms(:,:,i)),qMatrix(i-1,:),'forceSoln');
                 end
             else
                 display("MotionPlanner property IKmethod must be set by constructor-arguement to either 'ikine' or 'ikcon'.");

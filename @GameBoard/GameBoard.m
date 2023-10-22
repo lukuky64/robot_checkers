@@ -133,9 +133,9 @@ classdef GameBoard < handle
             end
 
             % converting from top left as origin to bottom left
-            movedFrom = obj.convertToNewOrigin(movedFrom)
-            movedTo = obj.convertToNewOrigin(movedTo)
-            removedFrom = obj.convertToNewOrigin(removedFrom)
+            movedFrom = obj.convertToNewOrigin(movedFrom);
+            movedTo = obj.convertToNewOrigin(movedTo);
+            removedFrom = obj.convertToNewOrigin(removedFrom);
         end
 
         % Flips the 'y' axis so origin is bottom left
@@ -189,13 +189,14 @@ classdef GameBoard < handle
                 tasksGrouped{2} = [movedFrom(1:2); movedTo(1:2)];
             end
 
+            removedArray = [];
             if (~isempty(removedFrom))
-                removedArray = [];
+                
                 for i = 1:height(removedFrom)
                     removedArray = [removedArray; removedFrom(i, 1:2)];
                 end
-                tasksGrouped{3} = removedArray;
             end
+            tasksGrouped{3} = removedArray;
             
             while obj.tasksLock
                 pause(0.001);  % Wait for the lock to be released
@@ -253,8 +254,8 @@ classdef GameBoard < handle
             obj.next_iteration = length(obj.localGameBoard);
             
             % Plot the data
-            figure(2); % Reuse the same figure
-            cla; % Clear the current figure
+            %figure(2); % Reuse the same figure
+            %cla; % Clear the current figure
             
             % load new gameboard state
             x = obj.localGameBoard{end}(1, :);
@@ -265,19 +266,19 @@ classdef GameBoard < handle
             idx_red = (color == 1);
             idx_blue = ~idx_red;
             
-            scatter(x(idx_red), y(idx_red), 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
-            hold on;
-            scatter(x(idx_blue), y(idx_blue), 'o', 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
-            hold off;
+            %scatter(x(idx_red), y(idx_red), 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
+            %hold on;
+            %scatter(x(idx_blue), y(idx_blue), 'o', 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
+            %hold off;
 
             % Reverse the direction of the Y-axis
-            set(gca, 'YDir', 'reverse');
+            %set(gca, 'YDir', 'reverse');
             
             % Make the axis square
-            axis square;
-            xlabel('X-axis');
-            ylabel('Y-axis');
-            title('Game Map Coordinates');
+            %axis square;
+            %xlabel('X-axis');
+            %ylabel('Y-axis');
+            %title('Game Map Coordinates');
 
         end
         
