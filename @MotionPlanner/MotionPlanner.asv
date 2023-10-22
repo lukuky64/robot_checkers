@@ -6,13 +6,14 @@ passed in through constructor-arguement.
 
 classdef MotionPlanner < handle
     properties (Constant)
-        endEffectorStepSize = 15 *1e-3; % m
+        endEffectorStepSize = 10 *1e-3; % m
+        endEffectorStepSizePrecise = 4 *1e-3; % m
         checkerPieceHeight = 5 *1e-3; % m
-        qHome = [pi/2 0 pi/4 3*pi/4 -pi/2] % tune this parameter such that minimal joint angular displacement to reach board. Will vary wrt. robot
     end
 
     properties
         robot % SerialLink model
+        qHome
         q % ground truth for robot's joint state
         Tboard % transform to bottom left of board top (ie. playing surface)
         % x-y plane coincident with surface, z points up and y direction is
@@ -25,23 +26,25 @@ classdef MotionPlanner < handle
     methods
         % constructor receives information about the robot model and
         % checker board
-        function obj = MotionPlanner(serialLink, Tboard, squareSize, Tbin, Tbase)
-            if nargin > 4
+        function obj = MotionPlanner(serialLink, qHome Tboard, squareSize, Tbin, Tbase)
+            if nargin > 5
                 obj.robot = serialLink;
+                obj.qHome = qHome;
                 obj.q = obj.qHome;
                 obj.robot.base = Tbase;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
-                obj.Tbin = Tbin;
+                obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
                 obj.numPrisoners = 0;
             % no robot base transform Tbase provided --> assumes origin
             % base:
-            elseif nargin > 3
+            elseif nargin > 4
                 obj.robot = serialLink;
+                obj.qHome = qHome;
                 obj.q = obj.qHome;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
-                obj.Tbin = Tbin;
+                obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
                 obj.numPrisoners = 0;
             else
                 error("Must pass appropriate parameters as construction" + ...
@@ -50,8 +53,8 @@ classdef MotionPlanner < handle
         end
 
         % -----------------------------------------------------------------
-        % Note: the calling of the following 3 functions, with gripper close
-        % and open commands being called between them, enable a checkers
+        % Note: the calling of the following 6 functions, with gripper close
+        % and open commands being called between them, enable a full checkers
         % move. To make compound checkers moves, function 
         % trajectorySquare2Square() should be called multiple times.
 
@@ -68,7 +71,7 @@ classdef MotionPlanner < handle
             % generate the component trajectories between interstitial 
             % waypoints of composite (full) trajectory:
             trajToAbove = self.cartesianTrajectoryTo(Tabove);
-            trajAboveToPos = self.cartesianTrajectoryTo(Tpos);
+            trajAboveToPos = self.cartesianTrajectoryTo(Tpos,'precise',1);
             
             % compile and return composite (full) trajectory:
             size1 = size(trajToAbove,1);
@@ -83,7 +86,7 @@ classdef MotionPlanner < handle
         % boardPos0 directly to boardPosP. Note: it assumes that the EE is 
         % already at boardPos0 and it does not return home after arriving at
         % boardPosP. 
-        function traj = trajectorySquare2Square(self,boardPos0,boardPosP)
+        function traj = trajectorySquareToSquare(self,boardPos0,boardPosP)
             % transforms to board positions (half the height of a checkers'
             % piece above particular square center):
             Tpos0 = self.Tboard*transl([(boardPos0-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
@@ -94,9 +97,9 @@ classdef MotionPlanner < handle
 
             % generate the component trajectories between interstitial 
             % waypoints of composite (full) trajectory:
-            trajPos0ToAbove0 = self.cartesianTrajectoryTo(Tabove0);
+            trajPos0ToAbove0 = self.cartesianTrajectoryTo(Tabove0,'precise',1);
             trajAbove0ToAboveP = self.cartesianTrajectoryTo(TaboveP);
-            trajAbovePToPosP = self.cartesianTrajectoryTo(TposP);            
+            trajAbovePToPosP = self.cartesianTrajectoryTo(TposP,'precise',1);            
             % compile and return composite (full) trajectory:
             size3 = size(trajPos0ToAbove0,1);
             size4 = size(trajAbove0ToAboveP,1);
@@ -106,12 +109,25 @@ classdef MotionPlanner < handle
             traj(size3+1:size3+size4,:) = trajAbove0ToAboveP;
             traj(size3+size4+1:size(traj,1),:) = trajAbovePToPosP;
         end
-
+        
         % ---------- 3 ----------
+        % this function returns a trajectory that moves EE from square to
+        % point above square: it should be called after a player has moved
+        % their piece, before moving captured opponent's pieces to bin.
+        function traj = trajectorySquareToAbove(self,boardPos)
+            % transform to square:
+            Tpos = self.Tboard*transl([(boardPos-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
+            % transform to point above square:
+            Tabove = transl(0, 0, 5*self.checkerPieceHeight)*Tpos;
+            % trajectory:
+            traj = self.cartesianTrajectoryTo(Tabove,'precise',1);
+        end
+
+        % ---------- 4 ----------
         % this function returns trajectory that proceeds an EE grip-dropoff:
         % it moves EE from square boardPos to above quare boardPos, and 
         % then returns robot to home pose using joint interpolation.
-        function traj = trajectorySquare2Bin(self,boardPos)
+        function traj = trajectorySquareToBin(self,boardPos)
             % transforms to board positions (half the height of a checkers'
             % piece above particular square center):
             Tpos = self.Tboard*transl([(boardPos-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
@@ -122,9 +138,9 @@ classdef MotionPlanner < handle
 
             % generate the component trajectories between interstitial 
             % waypoints of composite (full) trajectory:
-            trajPosToAbovePos = self.cartesianTrajectoryTo(TabovePos);
+            trajPosToAbovePos = self.cartesianTrajectoryTo(TabovePos,'precise',1);
             trajAbovePosToAboveBin = self.cartesianTrajectoryTo(TeeAboveBin);
-            trajAboveBinToBin = self.cartesianTrajectoryTo(TeeBin);
+            trajAboveBinToBin = self.cartesianTrajectoryTo(TeeBin,'precise',1);
             % compile and return composite (full) trajectory:
             size6 = size(trajPosToAbovePos,1);
             size7 = size(trajAbovePosToAboveBin,1);
@@ -139,7 +155,7 @@ classdef MotionPlanner < handle
             self.numPrisoners = self.numPrisoners+1;
         end
 
-        % ---------- 4 ----------
+        % ---------- 5 ----------
         % this function returns trajectory that proceeds an EE grip-dropoff
         % at the bin: it moves EE to above the bin and should be called
         % after piece is placed in bin to raise EE.
@@ -150,7 +166,7 @@ classdef MotionPlanner < handle
             traj = self.cartesianTrajectoryTo(TaboveBin);
         end
         
-        % ---------- 5 ----------
+        % ---------- 6 ----------
         % this function returns trajectory that brings manipulator to its
         % home pose: it should be the last trajectory implemented for the
         % corresponding robot's turn.
@@ -160,7 +176,20 @@ classdef MotionPlanner < handle
 
         % function that returns cartesian trajectory to arguement 
         % transform (double) and updates q
-        function traj = cartesianTrajectoryTo(self,Tp)
+        function traj = cartesianTrajectoryTo(self,Tp,varargin)
+            % parse motion option mode – is precise mode requested?
+            preciseModeOn = 0;
+            for i = 1:2:length(varargin)
+                option = varargin{i};
+                value = varargin{i + 1};
+                % Check and set options
+                if strcmp(option, 'precise')
+                    preciseModeOn = value;
+                else
+                    error('Invalid option: %s', option);
+                end
+            end
+            
             % set transforms and points of trajectory extrema:
             T0 = self.robot.fkine(self.q).T;
             P0 = transl(T0);
@@ -169,7 +198,11 @@ classdef MotionPlanner < handle
             % compute fractional increment by which end-effector will 
             % track the trajectory:
             trajDistance = sqrt(sum((Pp-P0).^2));
-            stepDistance = self.endEffectorStepSize; % mm x 1e-3 m/mm
+            if preciseModeOn == 1
+                stepDistance = self.endEffectorStepSizePrecise; % mm x 1e-3 m/mm
+            else
+                stepDistance = self.endEffectorStepSize; % mm x 1e-3 m/mm
+            end
             steps = double(round(trajDistance/stepDistance));            
             fractDists = jtraj(0,1,steps);
             

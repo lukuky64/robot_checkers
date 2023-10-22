@@ -9,7 +9,3 @@ bots_ = {bot1, bot2};
 
 %% Create interface instance
 interface_ = JOG_GUI(bots_);
-
-%% Function testing
-%jointTest_ = [0,1,1,1,1];
-%interface_.moveRobot(jointTest_, 1)

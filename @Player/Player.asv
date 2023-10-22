@@ -45,10 +45,10 @@ classdef Player < handle
             % return home:
             traj = [traj; self.mp.trajectoryToHome()];
         end
+    end
 
-        function hasWon = hasWon(self)
-            hasWon = self.mp.numPrisoners == 8;
-        end
+    function victory = hasWon(self)
+        
     end
 
     methods (Static)
