@@ -34,9 +34,10 @@ classdef MyCobot320 < RobotBaseClass
             link(4) = Link('d', 0.08878, 'a', 0, 'alpha', pi/2,'offset',pi/2, 'qlim', deg2rad([-165 165]));
             link(5) = Link('d', 0.095, 'a', 0, 'alpha', pi/2,'offset',pi, 'qlim', deg2rad([-165 165]));
             link(6) = Link('d',0.0655, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-175 175]));
-            
-             self.useTool = 1;
-             self.toolFilename = 'MyCobot320EndEffector.ply';
+            % link(7) = Link('d', 0,'a', 0, 'alpha', 0, 'qlim', deg2rad([-175 175]));
+
+             self.useTool = 0;
+             self.toolFilename = 'MyCobot320EndEffector1.ply';
              self.toolTr = transl(0, 0.095, 0);
            
             
