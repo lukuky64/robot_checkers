@@ -7,6 +7,7 @@ classdef GameBoard < handle
         next_iteration;
         board_; % physical gameboard object class
         tasks_ = {};
+        tasksLock = false;
         %sideLineTr; % this is where all the checkers that are out go
         %checkerHeight_;
     end
@@ -195,8 +196,33 @@ classdef GameBoard < handle
                 end
                 tasksGrouped{3} = removedArray;
             end
+            
+            while obj.tasksLock
+                pause(0.001);  % Wait for the lock to be released
+            end
+            obj.tasksLock = true;  % Lock
             obj.tasks_{end+1} = tasksGrouped;
+            obj.tasksLock = false;  % Unlock
         end
+        
+
+        function removeTask(obj, index_)
+            while obj.tasksLock
+                pause(0.001);  % Wait for the lock to be released
+            end
+        
+            obj.tasksLock = true;  % Lock
+        
+            if ~isempty(obj.tasks_) && index_ <= length(obj.tasks_)
+                % Remove the cell located at index_
+                obj.tasks_(index_) = [];
+            else
+                warning('Index out of range or tasks_ is empty.');
+            end
+        
+            obj.tasksLock = false;  % Unlock
+        end
+
 
 
         function plotData(obj)
