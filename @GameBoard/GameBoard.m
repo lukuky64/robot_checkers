@@ -7,13 +7,14 @@ classdef GameBoard < handle
         next_iteration;
         board_; % physical gameboard object class
         tasks_ = {};
+        tasksLock = false;
         %sideLineTr; % this is where all the checkers that are out go
         %checkerHeight_;
     end
     
     methods
-        function obj = gameBoard()
-            obj.gameSubscriber = ros_subscriber('/board_state', 'std_msgs/Int32MultiArray');
+        function obj = GameBoard()
+            obj.gameSubscriber = Ros_subscriber('/board_state', 'std_msgs/Int32MultiArray');
     
             % initialising the sideline
             %obj.sideLineTr = transl(-0.1,0,0);
@@ -137,7 +138,7 @@ classdef GameBoard < handle
             removedFrom = obj.convertToNewOrigin(removedFrom)
         end
 
-
+        % Flips the 'y' axis so origin is bottom left
         function newLocation = convertToNewOrigin(obj, currentLocation)
             boardSize = 7;
             if ~isempty(currentLocation)
@@ -166,7 +167,7 @@ classdef GameBoard < handle
             Tr = [rotation_, rotatedVector; 0 0 0 1];
         end
 
-
+        % plotting transforms for visualisation
         function plotTr(obj, Tr, colour)
             figure(1);
             if colour == 1
@@ -176,7 +177,8 @@ classdef GameBoard < handle
             end
         end
         
-
+        % creating a task for the robot players to complete. Storing new
+        % tasks at the end of the class variable tasks_ cell
         function assignTasks(obj, movedFrom, movedTo, removedFrom)
             tasksGrouped = {};
 
@@ -194,8 +196,33 @@ classdef GameBoard < handle
                 end
                 tasksGrouped{3} = removedArray;
             end
+            
+            while obj.tasksLock
+                pause(0.001);  % Wait for the lock to be released
+            end
+            obj.tasksLock = true;  % Lock
             obj.tasks_{end+1} = tasksGrouped;
+            obj.tasksLock = false;  % Unlock
         end
+        
+
+        function removeTask(obj, index_)
+            while obj.tasksLock
+                pause(0.001);  % Wait for the lock to be released
+            end
+        
+            obj.tasksLock = true;  % Lock
+        
+            if ~isempty(obj.tasks_) && index_ <= length(obj.tasks_)
+                % Remove the cell located at index_
+                obj.tasks_(index_) = [];
+            else
+                warning('Index out of range or tasks_ is empty.');
+            end
+        
+            obj.tasksLock = false;  % Unlock
+        end
+
 
 
         function plotData(obj)
