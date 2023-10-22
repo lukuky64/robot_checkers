@@ -1,4 +1,4 @@
-classdef gameBoard < handle
+classdef GameBoard < handle
     properties
         gameSubscriber;  % Instance of the subscriber_gameBoard class
         localGameBoard;

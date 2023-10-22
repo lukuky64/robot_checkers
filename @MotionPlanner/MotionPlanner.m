@@ -7,13 +7,13 @@ passed in through constructor-arguement.
 classdef MotionPlanner < handle
     properties (Constant)
         endEffectorStepSize = 10 *1e-3; % m
-        endEffectorStepSizePrecise = 2 *1e-3; % m
+        endEffectorStepSizePrecise = 4 *1e-3; % m
         checkerPieceHeight = 5 *1e-3; % m
-        qHome = [pi/2 0 pi/4 3*pi/4 -pi/2] % tune this parameter such that minimal joint angular displacement to reach board. Will vary wrt. robot
     end
 
     properties
         robot % SerialLink model
+        qHome
         q % ground truth for robot's joint state
         Tboard % transform to bottom left of board top (ie. playing surface)
         % x-y plane coincident with surface, z points up and y direction is
@@ -26,9 +26,10 @@ classdef MotionPlanner < handle
     methods
         % constructor receives information about the robot model and
         % checker board
-        function obj = MotionPlanner(serialLink, Tboard, squareSize, Tbin, Tbase)
-            if nargin > 4
+        function obj = MotionPlanner(serialLink, qHome, Tboard, squareSize, Tbin, Tbase)
+            if nargin > 5
                 obj.robot = serialLink;
+                obj.qHome = qHome;
                 obj.q = obj.qHome;
                 obj.robot.base = Tbase;
                 obj.Tboard = Tboard;
@@ -37,8 +38,9 @@ classdef MotionPlanner < handle
                 obj.numPrisoners = 0;
             % no robot base transform Tbase provided --> assumes origin
             % base:
-            elseif nargin > 3
+            elseif nargin > 4
                 obj.robot = serialLink;
+                obj.qHome = qHome;
                 obj.q = obj.qHome;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;

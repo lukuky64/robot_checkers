@@ -1,0 +1,29 @@
+classdef Game < handle
+    %UNTITLED Summary of this class goes here
+    %   Detailed explanation goes here
+
+    properties (Constant)
+        dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
+        cobotQ0 = zeros(1,6); %--------
+        squareSize = .035; % checkers square size [m] (if change, change Tboard)
+        boardHeight = .05; % checkers board height [m] (if change, change Tboard)
+        Tboard = transl(-.035/2,.04,.05); % checkers board transform (ensure no rotation wrt. world)
+    end
+
+    properties
+        animator
+        playerRed
+        playerBlue
+    end
+
+    methods
+        function self = Game()
+            self.animator = Animator(self.dobotQ0,self.cobotQ0,self.squareSize, ...
+                self.boardHeight,self.Tboard);
+            self.playerRed = Player(self.animator.dobot, self.Tboard, ...
+                self.squareSize, self.Tbin);
+            self.playerBlue = Player(self.animator.cobot, self.Tboard, ...
+                self.squareSize, self.Tbin);
+        end
+    end
+end

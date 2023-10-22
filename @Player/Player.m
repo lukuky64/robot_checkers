@@ -5,9 +5,14 @@ classdef Player < handle
     end
 
     methods
-        function self = Player(serialLink, Tboard, squareSize, Tbin, Tbase)
-            self.mp = MotionPlanner(serialLink, Tboard, squareSize, Tbin, ...
-                Tbase);
+        function self = Player(serialLink, q0, Tboard, squareSize, Tbin, Tbase)
+            if nargin > 5
+                self.mp = MotionPlanner(serialLink, q0, Tboard, squareSize, ...
+                    Tbin, Tbase);
+            else
+                self.mp = MotionPlanner(serialLink, q0, Tboard, squareSize, ...
+                Tbin);
+            end
         end
 
         function traj = processTaskTrajectory(self, task)
