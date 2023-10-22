@@ -20,14 +20,15 @@ classdef MotionPlanner < handle
         % from white-piece team towards black-piece team
         squareSize % board square side length
         numPrisoners % number of slain pieces of other player's
-        Tbin %
+        Tbin 
+        IKmethod
     end
 
     methods
         % constructor receives information about the robot model and
         % checker board
-        function obj = MotionPlanner(serialLink, qHome, Tboard, squareSize, Tbin, Tbase)
-            if nargin > 5
+        function obj = MotionPlanner(serialLink, qHome, Tboard, squareSize, Tbin, IKmethod, Tbase)
+            if nargin > 6
                 obj.robot = serialLink;
                 obj.qHome = qHome;
                 obj.q = obj.qHome;
@@ -35,16 +36,18 @@ classdef MotionPlanner < handle
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
                 obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
+                obj.IKmethod = IKmethod;
                 obj.numPrisoners = 0;
             % no robot base transform Tbase provided --> assumes origin
             % base:
-            elseif nargin > 4
+            elseif nargin > 5
                 obj.robot = serialLink;
                 obj.qHome = qHome;
                 obj.q = obj.qHome;
                 obj.Tboard = Tboard;
                 obj.squareSize = squareSize;
                 obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
+                obj.IKmethod = IKmethod;
                 obj.numPrisoners = 0;
             else
                 error("Must pass appropriate parameters as construction" + ...
@@ -193,6 +196,9 @@ classdef MotionPlanner < handle
             % set transforms and points of trajectory extrema:
             T0 = self.robot.fkine(self.q).T;
             P0 = transl(T0);
+            if self.IKmethod == 'ikcon'
+                Tp = Tp*inv(transl(0,0.8,0)*rpy2tr(-pi/2,0,0));
+            end
             Pp = transl(Tp);
 
             % compute fractional increment by which end-effector will 
@@ -210,12 +216,21 @@ classdef MotionPlanner < handle
             trajTransforms = ctraj(T0, Tp, fractDists);
             qMatrix = zeros(steps,self.robot.n);
             qMatrix(1,:) = self.q;
-            for i=2:steps
-                % perhaps change to .ikine6s if 6 DoF used ultimately 
-                qMatrix(i,:) = self.robot.ikine(trajTransforms(:,:,i), ...
-                    'q0',qMatrix(i-1,:),'mask',[1 1 1 0 1 1],'forceSoln');
+            if self.IKmethod == 'ikine'
+                for i=2:steps
+                    % perhaps change to .ikine6s if 6 DoF used ultimately 
+                    qMatrix(i,:) = self.robot.ikine(trajTransforms(:,:,i), ...
+                        'q0',qMatrix(i-1,:),'mask',[1 1 1 0 1 1],'forceSoln');
+                end
+            elseif self.IKmethod == 'ikcon'
+                for i=2:steps
+                    % perhaps change to .ikine6s if 6 DoF used ultimately 
+                    qMatrix(i,:) = self.robot.ikcon(trajTransforms(:,:,i),qMatrix(i-1,:));
+                end
+            else
+                display("MotionPlanner property IKmethod must be set by constructor-arguement to either 'ikine' or 'ikcon'.");
             end
-            
+
             % update q state and return trajectory
             self.q = qMatrix(end,:);
             traj = qMatrix;

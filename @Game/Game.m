@@ -4,7 +4,7 @@ classdef Game < handle
 
     properties (Constant)
         dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
-        cobotQ0 = zeros(1,6); %--------
+        cobotQ0 = [pi/2 0 3*pi/4 -pi/4 -pi/2 0]; %--------
         squareSize = .035; % checkers square size [m] (if change, change Tboard)
         boardHeight = .05; % checkers board height [m] (if change, change Tboard)
         Tboard = transl(-(.035*8)/2,.04,.05); % checkers board transform (ensure no rotation wrt. world)

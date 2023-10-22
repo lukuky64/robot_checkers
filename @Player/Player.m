@@ -5,13 +5,14 @@ classdef Player < handle
     end
 
     methods
-        function self = Player(serialLink, q0, Tboard, squareSize, Tbin, Tbase)
-            if nargin > 5
+        function self = Player(serialLink, q0, Tboard, squareSize, Tbin, ...
+                IKmethod, Tbase)
+            if nargin > 6
                 self.mp = MotionPlanner(serialLink, q0, Tboard, squareSize, ...
-                    Tbin, Tbase);
+                    Tbin, IKmethod, Tbase);
             else
                 self.mp = MotionPlanner(serialLink, q0, Tboard, squareSize, ...
-                Tbin);
+                    Tbin, IKmethod);
             end
         end
 

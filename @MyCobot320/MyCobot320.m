@@ -36,8 +36,7 @@ classdef MyCobot320 < RobotBaseClass
             link(6) = Link('d',0.0655, 'a', 0, 'alpha', pi/2, 'qlim', deg2rad([-175 175]));
             
              self.useTool = 1;
-             self.toolFilename = 'MyCobot320EndEffector.ply';
-           
+             self.toolFilename = 'MyCobot320EndEffector.ply';           
             
             self.model = SerialLink(link,'name',self.name);
         end
