@@ -33,7 +33,27 @@ classdef Game < handle
 
         function startGame(self)
             self.gameBoard.run();
-            
+            gameWinner = 0;
+            while gameWinner == 0
+                if ~isempty(self.gameBoard.tasks_)
+                    if self.gameBoard.tasks_{1}{1} == 0 % blue/cobot turn
+                        traj = self.playerBlue.processTaskTrajectory(tasks_{1});
+                        self.animator.animatePlayerMove(traj,'robot','cobot');
+                        self.gameBoard.removeTask(1);
+                        if self.playerBlue.hasWon()
+                            gameWinner = 'blue';
+                        end
+                    elseif self.gameBoard.tasks_{1}{1} == 1 % red/dobot turn
+                        traj = self.playerRed.processTaskTrajectory(tasks_{1});
+                        self.animator.animatePlayerMove(traj,'robot','dobot');
+                        self.gameBoard.removeTask(1);
+                        if self.playerRed.hasWon()
+                            gameWinner = 'red';
+                        end
+                    end
+                end
+            end
+            display("The "+gameWinner+" team hasn won the game.")
         end
     end
 end

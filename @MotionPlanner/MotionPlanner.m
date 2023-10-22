@@ -182,7 +182,7 @@ classdef MotionPlanner < handle
             for i = 1:2:length(varargin)
                 option = varargin{i};
                 value = varargin{i + 1};
-                % Check and set options
+                % check and set options:
                 if strcmp(option, 'precise')
                     preciseModeOn = value;
                 else

@@ -33,5 +33,32 @@ classdef Animator < handle
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
         end
+
+        function animatePlayerMove(self,traj,vargin)
+            % parse option of dobot or cobot:
+            robotSelection;
+            for i = 1:2:length(varargin)
+                option = varargin{i};
+                value = varargin{i + 1};
+                % check and set options
+                if strcmp(option, 'robot')
+                    robotSelection = value;
+                else
+                    error('Invalid option: %s', option);
+                end
+            end
+            % animate robot:
+            if robotSelection == 'cobot'
+                for i=1:size(traj,1)
+                    self.cobot.animate(traj(i,:));
+                    pause(25^-1);
+                end
+            elseif robotSelection == 'dobot'
+                for i=1:size(traj,1)
+                    self.dobot.animate(traj(i,:));
+                    pause(25^-1);
+                end
+            end
+        end
     end
 end
