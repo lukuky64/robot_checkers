@@ -38,8 +38,9 @@ classdef Animator < handle
             % parse option of dobot or cobot:
             robotSelection;
             for i = 1:2:length(varargin)
-                option = varargin{i};
-                value = varargin{i + 1};
+                argin = varargin;
+                option = argin{i};
+                value = argin{i + 1};
                 % check and set options
                 if strcmp(option, 'robot')
                     robotSelection = value;
