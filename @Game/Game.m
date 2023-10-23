@@ -4,12 +4,13 @@ classdef Game < handle
 
     properties (Constant)
         dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
-        cobotQ0 = zeros(1,6); %--------
+        cobotQ0 = [pi/2 pi/8 3*pi/4 -3*pi/8 -pi/2 0]
+        cobotQready = deg2rad([0 25 90 -45 -90 0])
         squareSize = .035; % checkers square size [m] (if change, change Tboard)
         boardHeight = .05; % checkers board height [m] (if change, change Tboard)
         Tboard = transl(-(.035*8)/2,.04,.05); % checkers board transform (ensure no rotation wrt. world)
         TbinDobot = transl(-.2,.2,0);
-        TbinCobot = transl(0,0,0); %---------
+        TbinCobot = transl(.2,.2,0); %---------
     end
 
     properties
@@ -24,11 +25,12 @@ classdef Game < handle
             self.animator = Animator(self.dobotQ0,self.cobotQ0,self.squareSize, ...
                 self.boardHeight,self.Tboard);
             self.playerRed = Player(self.animator.dobot,self.dobotQ0, ...
-                self.Tboard,self.squareSize,self.TbinDobot);
+                self.Tboard,self.squareSize,self.TbinDobot,'dobot');
             self.playerBlue = Player(self.animator.cobot,self.cobotQ0, ...
-                self.Tboard,self.squareSize, self.TbinCobot);
-            self.gameBoard = GameBoard();
-            self.startGame();
+                self.Tboard,self.squareSize, self.TbinCobot,'cobot', ...
+                'cobotQready',self.cobotQready);
+            %self.gameBoard = GameBoard();
+            %self.startGame();
         end
 
         function startGame(self)
