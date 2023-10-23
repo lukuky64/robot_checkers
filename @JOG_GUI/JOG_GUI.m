@@ -8,6 +8,7 @@ classdef JOG_GUI < handle
         currentJointPos_ = {};
         nextJointPos_ = {};
         guiHandles = struct();  % GUI handles
+        obstacleModel; % all static objects in workspace that can collide with robot
         % motionPlanner = {};
     end
 
@@ -16,6 +17,7 @@ classdef JOG_GUI < handle
             for i = 1:length(bots)
                 obj.robot_{i} = bots{i};
             end
+            obj.createObstacles();
             obj.initialise();
             obj.createGUI();
             % obj.setupMotionPlanner(bots);
@@ -26,6 +28,11 @@ classdef JOG_GUI < handle
         %         obj.motionPlanner{i} = MotionPlanner(obj.robot_{i}, );
         %     end
         % end
+
+        function createObstacles(obj)
+            obj.obstacleModel = collisionBox(1.2,1.2,0.001);
+            CollisionModel(collisionBox(1.2,1.2,0.001))
+        end
 
         function initialise(obj)
 
@@ -237,6 +244,11 @@ classdef JOG_GUI < handle
             
             for i = 1:steps_
                 obj.robot_{robotNum_}.model.animate(q(i,:));
+                collisionFlag = obj.robot_{robotNum_}.model.collisions(q(i,:), obj.obstacleModel);
+                if collisionFlag
+                    disp("Collision detected!");
+                    break;
+                end
                 pause(0.01);
             end
             

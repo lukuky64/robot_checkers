@@ -22,7 +22,7 @@ classdef Animator < handle
             self.dobotRobotBaseClass = DobotMagician(rpy2tr(0,0,pi/2));
             self.dobot = self.dobotRobotBaseClass.model;
             hold on
-            cobotBaseBoardGap = .05;
+            cobotBaseBoardGap = .14;
             TcobotBase = transl(0,squareSize*8+Tboard(2,4)+ ...
                 cobotBaseBoardGap,0)*rpy2tr(0,0,pi/2);
             self.cobotRobotBaseClass = MyCobot320(TcobotBase);

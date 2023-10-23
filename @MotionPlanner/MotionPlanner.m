@@ -6,9 +6,9 @@ passed in through constructor-arguement.
 
 classdef MotionPlanner < handle
     properties (Constant)
-        endEffectorStepSize = 10 *1e-3; % m
+        endEffectorStepSize = 8 *1e-3; % m
         endEffectorStepSizePrecise = 4 *1e-3; % m
-        checkerPieceHeight = 5 *1e-3; % m
+        checkerPieceHeight = 4 *1e-3; % m
     end
 
     properties
@@ -22,37 +22,36 @@ classdef MotionPlanner < handle
         numPrisoners % number of slain pieces of other player's
         Tbin 
         IKmethod
+        requiresReadyWaypoint = 0
+        qReady 
     end
+    
 
     methods
         % constructor receives information about the robot model and
         % checker board
-        function obj = MotionPlanner(serialLink, qHome, Tboard, squareSize, Tbin, IKmethod, Tbase)
-            if nargin > 6
-                obj.robot = serialLink;
-                obj.qHome = qHome;
-                obj.q = obj.qHome;
-                obj.robot.base = Tbase;
-                obj.Tboard = Tboard;
-                obj.squareSize = squareSize;
-                obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
-                obj.IKmethod = IKmethod;
-                obj.numPrisoners = 0;
-            % no robot base transform Tbase provided --> assumes origin
-            % base:
-            elseif nargin > 5
-                obj.robot = serialLink;
-                obj.qHome = qHome;
-                obj.q = obj.qHome;
-                obj.Tboard = Tboard;
-                obj.squareSize = squareSize;
-                obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
-                obj.IKmethod = IKmethod;
-                obj.numPrisoners = 0;
-            else
-                error("Must pass appropriate parameters as construction" + ...
-                    " arguements.");
+        function obj = MotionPlanner(serialLink, qHome, Tboard, squareSize, Tbin, IKmethod, varargin)
+            % parse motion option mode – is qReady provided?
+            for i = 1:2:length(varargin)
+                argin = varargin{i};
+                option = argin;
+                value = varargin{i + 1};
+                % check and set options:
+                if strcmp(option, 'cobotQready')
+                    obj.qReady = value;
+                    obj.requiresReadyWaypoint = 1;
+                else
+                    error('Invalid option: %s', option);
+                end
             end
+            obj.robot = serialLink;
+            obj.qHome = qHome;
+            obj.q = obj.qHome;
+            obj.Tboard = Tboard;
+            obj.squareSize = squareSize;
+            obj.Tbin = Tbin*rpy2tr(0,0,-pi/2);
+            obj.IKmethod = IKmethod;
+            obj.numPrisoners = 0;
         end
 
         % -----------------------------------------------------------------
@@ -68,6 +67,7 @@ classdef MotionPlanner < handle
             % transform to board position (half the height of a checkers'
             % piece above particular square center):
             Tpos = self.Tboard*transl([(boardPos-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
+            trplot(Tpos);
             % transform to point above target board position:
             Tabove = transl(0, 0, 5*self.checkerPieceHeight)*Tpos;
 
@@ -176,6 +176,14 @@ classdef MotionPlanner < handle
         function traj = trajectoryToHome(self)
             traj = self.interpolationTrajectoryTo(self.qHome);
         end
+        
+        function traj = interpolationTrajectoryToReady(self)
+            traj = self.interpolationTrajectoryTo(self.qReady);
+        end
+
+        function traj = cartesianTrajectoryToReady(self)
+            traj = self.cartesianTrajectoryTo(self.robot.fkine(self.qReady).T);
+        end
 
         % function that returns cartesian trajectory to arguement 
         % transform (double) and updates q
@@ -197,9 +205,12 @@ classdef MotionPlanner < handle
             T0 = self.robot.fkine(self.q).T;
             P0 = transl(T0);
             if self.IKmethod == 'cobot'
-                Tp = Tp*inv(transl(0,.095,0)*rpy2tr(-3*pi/2,0,0));
+                % cobot TCP with respect to end-effector transform:
+                eTc = transl(0,.095,0)*rpy2tr(-pi/2,0,0);
+                % Tp conditioned for z-down and TCP offset:
+                Tpp = Tp*rpy2tr(pi,0,0)*inv(eTc)*rpy2tr(0,-pi/2,0);
             end
-            Pp = transl(Tp);
+            Pp = transl(Tpp);
 
             % compute fractional increment by which end-effector will 
             % track the trajectory:
@@ -212,8 +223,8 @@ classdef MotionPlanner < handle
             steps = double(round(trajDistance/stepDistance));            
             fractDists = jtraj(0,1,steps);
             
-            % compute attendant matrix of joint states
-            trajTransforms = ctraj(T0, Tp, fractDists);
+            % compute attendant matrix of joint states:
+            trajTransforms = ctraj(T0, Tpp, fractDists);
             qMatrix = zeros(steps,self.robot.n);
             qMatrix(1,:) = self.q;
             if self.IKmethod == 'dobot'
@@ -223,11 +234,10 @@ classdef MotionPlanner < handle
                 end
             elseif self.IKmethod == 'cobot'
                 for i=2:steps
-                    qMatrix(i,:) = self.robot.ikcon(trajTransforms(:,:,i),qMatrix(i-1,:));% ...
-                        %'q0',qMatrix(i-1,:),'mask',[1 1 1 0 0 1],'forceSoln');
+                    qMatrix(i,:) = self.robot.ikcon(trajTransforms(:,:,i),qMatrix(i-1,:));
                 end
             else
-                display("MotionPlanner property IKmethod must be set by constructor-arguement to either 'ikine' or 'ikcon'.");
+                display("MotionPlanner property IKmethod must be set by constructor-arguement to either 'dobot' or 'cobot'.");
             end
 
             % update q state and return trajectory
