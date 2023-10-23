@@ -28,10 +28,13 @@ def main():
     rate = rospy.Rate(5)  # Publish at 5 Hz
     while not rospy.is_shutdown():
         if ser.in_waiting > 0:
+            print("message rceived...")
             arduino_data = ser.readline().decode("utf-8").strip()
             if arduino_data == "stopped":
+                print("STOPPED")
                 msg = 1  # Stopped
             else:
+                print("RUNNING")
                 msg = 0  # Running
 
             # Publish the data to the ROS topic
