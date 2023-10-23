@@ -29,16 +29,14 @@ classdef Player < handle
 
         function traj = processTaskTrajectory(self, task)
             % moving Player's piece:
-            movePositions = self.movePositions(task)
+            movePositions = self.movePositions(task);
             traj = zeros(1,self.mp.robot.n);
             if self.isCobot == 1
                 traj = self.mp.interpolationTrajectoryToReady();
-                traj = [traj; self.mp.trajectoryMoveToSquare( ...
-                    movePositions(1,:))];
+                traj = [traj; self.mp.trajectoryMoveToSquare(movePositions(1,:));]
             else
                 traj = self.mp.trajectoryMoveToSquare(movePositions(1,:));
             end
-
             if size(movePositions,1) > 2
                 for i=2:size(movePositions,1)-1
                     traj = [traj; self.mp.trajectorySquareToSquare( ...
@@ -63,12 +61,7 @@ classdef Player < handle
             end
             
             % return home:
-            if self.isCobot == 1
-                traj = [traj; self.mp.cartesianTrajectoryToReady()];
-                traj = [traj; self.mp.trajectoryToHome()];
-            else
-                traj = [traj; self.mp.trajectoryToHome()];
-            end
+            traj = [traj; self.mp.trajectoryToHome()];
         end
 
         function hasWon = hasWon(self)
@@ -78,18 +71,16 @@ classdef Player < handle
 
     methods (Static)
         function positions = movePositions(task)
-            numPrisoners = size(task{3},1)
+            numPrisoners = size(task{3},1);
             if numPrisoners == 0
                 positions = zeros(2, 2);
             else
                 positions = zeros( 1+numPrisoners, 2);
             end
             positions(1,:) = task{2}(1,:);
-            if numPrisoners > 1
-                for i=2:numPrisoners
-                    positions(i,:) = Player.interstitialPosition( task{3}(i-1,:), ...
-                        task{3}(i,:) );
-                end
+            for i=2:numPrisoners
+                positions(i,:) = Player.interstitialPosition( task{3}(i-1,:), ...
+                    task{3}(i,:) );
             end
             positions(end,:) = task{2}(2,:);
         end
