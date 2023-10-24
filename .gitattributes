@@ -1,0 +1,5 @@
+# Excluding files that were not created by the contributors of this git repo
+
+Checkers_AI_modded/checkers.py linguist-generated=true
+Checkers_AI_modded/gamebot.py linguist-generated=true
+Checkers_AI_modded/main.py linguist-generated=true
