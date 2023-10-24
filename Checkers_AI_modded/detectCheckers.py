@@ -10,7 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class CheckerboardDetector:
     def __init__(self):
         self.bridge = CvBridge()
-        self.image_sub = rospy.Subscriber("/camera/rgb/image_raw", Image, self.callback)
+        self.image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, self.callback)
         self.locations = []
 
     def callback(self, data):
@@ -20,12 +20,12 @@ class CheckerboardDetector:
             print(e)
             return
 
-        # Detect 8x8 checkerboard
+        # Detect 8x8 checkerboard using open CV function
         ret, corners = cv2.findChessboardCorners(cv_image, (8,8), None)
         
         if ret:
             # Isolate blue channel and convert to greyscale
-            blue_channel = cv_image[:,:,0]
+            blue_channel = cv_image[:,:,0] # BGR, blue channel is index 0
             grey_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
             
             # Apply watershed algorithm
