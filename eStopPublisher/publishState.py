@@ -6,7 +6,7 @@ import os
 from std_msgs.msg import Int32
 
 def main():
-    port = "/dev/ttyUSB0"
+    port = "/dev/ttyUSB0" # "/dev/ttyUSB0" "/dev/ttyACM0"
 
     # Wait for Arduino to be connected
     while not os.path.exists(port):
