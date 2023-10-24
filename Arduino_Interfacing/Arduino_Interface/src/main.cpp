@@ -10,29 +10,29 @@
 #define bluePin 9
 
 // button pins
-#define redButton 3
-#define blankButton 4
+#define redButton 3   // eStop
+#define blankButton 4 // resume
 
-//Bounce eStop = Bounce();
-//Bounce resume = Bounce();
-
+// creates button objects for debouncer
 Bounce2::Button eStop = Bounce2::Button();
 Bounce2::Button resume = Bounce2::Button();
 
-const int interval = 50;
-int progState = 1;
-int stopState = 0;
+
+const int interval = 50; // debounce interval
+int progState = 1;       // state machine position
+int stopState = 0;       // estop latch, so that non latching button works
+int toggle = 1;          // toggle for led test
+
+// function declarations
+void setColor(int redValue, int greenValue, int blueValue); // allows you to set colour by rgb values
+void setGreen();                                            // sets green colour
+void setColour(String colour);                              // set colour by name (red, orange, green)
+void input();                                               // type colour into serial monitor (untested)
+void ledTest(int toggle);                                   // switch case funtion that runs various led tests based on toggle
+void buttonTest();                                          // test estop button state
+void stateMachine(int state, int stp);                      // state machine that has 3 states, running, stopped and armed
 
 
-void setColor(int redValue, int greenValue, int blueValue);
-void setGreen();
-void setColour(String colour);
-void input();
-void ledTest(int toggle);
-void buttonTest();
-void stateMachine(int state, int stp);
-
-    int toggle = 1; // toggle for led test
 
 void setup()
 {
@@ -62,9 +62,9 @@ void setup()
 
 void loop()
 {
- // ledTest(toggle);
+ 
   stateMachine(progState, stopState);
- //buttonTest();
+ 
   
 }
 
@@ -89,17 +89,14 @@ void stateMachine(int state, int stp)
     setColour("green");
     if (eStop.pressed())
     {
-      Serial.println("stopped");
       progState = 2;
-      stopState = 1;
-      
+      stopState = 1; 
     }
     
     break;
   case 2: //stopped
-   // Serial.println("stopped");
+    Serial.println("stopped");
     setColour("red");
-    Serial.println(stopState);
     if (eStop.pressed()){
       stopState = 0;
     }
@@ -110,8 +107,15 @@ void stateMachine(int state, int stp)
     
     break;
   case 3: // armed
-    Serial.println("armed");
+    Serial.println("stopped"); // can be changed to armed if you want it to publish armed state
     setColour("orange");
+    if (eStop.pressed())
+    {
+      stopState = 1;
+    }
+    if (stp == 1){
+      progState = 2;
+    }
     if ((stp == 0) && (resume.pressed()))
     {
       progState = 1;
