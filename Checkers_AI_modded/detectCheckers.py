@@ -64,13 +64,13 @@ class CheckerboardDetector:
                     coords = np.argwhere(markers == marker)
                     y, x = coords.mean(axis=0)
 
-                    x_grid = int(round((x - top_left[0] - (grid_width / 2)) / grid_width))
-                    y_grid = int(round((y - top_left[1] - (grid_height / 2)) / grid_height))
+                    x_grid = int(round((x - (top_left[0] - grid_width) - (grid_width / 2)) / grid_width))
+                    y_grid = int(round((y - (top_left[1] - grid_height) - (grid_height / 2)) / grid_height))
 
                     self.locations.append((x_grid, y_grid))
 
-                    draw_x = int(top_left[0] + (x_grid * grid_width) + (grid_width / 2))
-                    draw_y = int(top_left[1] + (y_grid * grid_height) + (grid_height / 2))
+                    draw_x = int(round(x))
+                    draw_y = int(round(y))
 
                     cv2.circle(cv_image, (draw_x, draw_y), radius=14, color=(0, 255, 0), thickness=-1)
 
