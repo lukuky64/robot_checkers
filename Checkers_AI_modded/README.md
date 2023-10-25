@@ -20,7 +20,7 @@ catkin_make
 source ~/catkin_ws/devel/setup.bash
 ```
 
-#### If not done yet:
+#### If camera is not calibrated:
 <details>
   
 ```Bash
