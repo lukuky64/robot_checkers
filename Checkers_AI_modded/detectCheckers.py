@@ -14,25 +14,35 @@ class CheckerboardDetector:
     def callback(self, data):
         if self.process_image:
             try:
-                cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+                cv_image = self.bridge.imgmsg_to_cv2(data, "rgb8")
             except CvBridgeError as e:
                 print(e)
                 return
 
-            ret, corners = cv2.findChessboardCorners(cv_image, (7, 7), None)
+            gray_image = cv2.cvtColor(cv_image, cv2.COLOR_RGB2GRAY)
+            ret, corners = cv2.findChessboardCorners(gray_image, (7, 7), None)
             
             if ret:
                 print("Checkerboard found!")
                 
                 # Isolate blue channel
-                blue_channel = cv_image[:,:,0] 
+                blue_channel = cv_image[:,:,2] 
                 
-                # Threshold to identify blue regions
-                _, blue_thresh = cv2.threshold(blue_channel, 128, 255, cv2.THRESH_BINARY)
+                hsv = cv2.cvtColor(cv_image, cv2.COLOR_RGB2HSV)
+
+                # Define range of blue-purple color in HSV
+                lower_blue_purp = np.array([125, 50, 50])
+                upper_blue_purp = np.array([160, 255, 255])
+
+                # Threshold the HSV image to get only blue colors
+                mask_combined = cv2.inRange(hsv, lower_blue_purp, upper_blue_purp)
+
+                cv2.imshow('Highlighted Checkers', mask_combined)
+                cv2.waitKey(0)
                 
-                # Apply watershed algorithm on blue_thresh
+                # Apply watershed algorithm on mask
                 kernel = np.ones((3,3), np.uint8)
-                opening = cv2.morphologyEx(blue_thresh, cv2.MORPH_OPEN, kernel)
+                opening = cv2.morphologyEx(mask_combined, cv2.MORPH_OPEN, kernel)
                 sure_bg = cv2.dilate(opening, None, iterations=3)
                 ret, sure_fg = cv2.threshold(opening, 0.7 * opening.max(), 255, 0)
                 unknown = cv2.subtract(sure_bg, sure_fg)
@@ -67,8 +77,8 @@ class CheckerboardDetector:
                         cv_image[coord[0], coord[1]] = [0, 255, 0]  # Green color
                 
                 # Display the modified image
-                cv2.imshow('Highlighted Checkers', cv_image)
-                cv2.waitKey(0)
+                # cv2.imshow('Highlighted Checkers', cv_image)
+                # cv2.waitKey(0)
                 
                 self.locations = list(set(self.locations))
                 print("Locations of blue checkers: ", self.locations)
