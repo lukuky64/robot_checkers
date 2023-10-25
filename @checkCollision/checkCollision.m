@@ -38,7 +38,9 @@ classdef checkCollision < handle
                         
                         % Check if the intersection point lies inside the triangle
                         if check == 1 && checkCollision.IsIntersectionPointInsideTriangle(intersectP, vertex(faces(faceIndex, :), :))
+                            hold on
                             plot3(intersectP(1), intersectP(2), intersectP(3), 'g*'); % plot the point of intersection
+                            hold off
                             disp('Intersection detected!');
                             msgbox('Collision Detected!', 'Warning', 'warn');
                             result = true;
@@ -102,6 +104,7 @@ classdef checkCollision < handle
             plotOptions.plotFaces = true;
             plotOptions.FaceColor = [0.8, 0.8, 0.8];
             plotOptions.EdgeColor = 'k';
+            plotOptions.FaceAlpha = 0.6;
         
             vertex = [];
             faces = [];
@@ -124,11 +127,6 @@ classdef checkCollision < handle
         function [vertex,face,faceNormals] = RectangularPrism(lower,upper,plotOptions,axis_h)
             if nargin<4
                     axis_h=gca;
-                if nargin<3
-                    plotOptions.plotVerts=false;
-                    plotOptions.plotEdges=true;
-                    plotOptions.plotFaces=true;
-                end
             end
             hold on
             
@@ -188,13 +186,14 @@ classdef checkCollision < handle
                 end
             end
             
-            %% If you want to plot the edges
+            %% To plot the edges
             if isfield(plotOptions,'plotFaces') && plotOptions.plotFaces
-                tcolor = [.2 .2 .8];
-                
-                patch('Faces',face,'Vertices',vertex,'FaceVertexCData',tcolor,'FaceColor','flat','lineStyle','none');
+                tcolor = [0.2, 0.2, 0.8];  % Your desired color
+                patch('Faces',face,'Vertices',vertex,'FaceColor',tcolor,'LineStyle','none', 'FaceAlpha', plotOptions.FaceAlpha, 'EdgeColor', plotOptions.EdgeColor);
             end
-        
+
+
+            hold off
         end
 
     end
