@@ -9,3 +9,26 @@ Small modifications have been made to the checkers.py file using new
 python classes to publish the current gameboard state to a ROS node. 
 This gameboard state is an array containing the location and occupancy
 colour of each checker on the board.
+
+
+
+## To run detectCheckers:
+
+```Bash
+catkin_make
+source ~/catkin_ws/devel/setup.bash
+```
+
+If not done yet:
+```Bash
+rosrun camera_calibration cameracalibrator.py --size 8x6 --square 0.024 image:=/usb_cam/image_raw camera:=/usb_cam
+```
+
+```Bash
+roslaunch usb_cam usb_cam-test.launch
+```
+
+```Bash
+python3 detectCheckers.py
+```
+
