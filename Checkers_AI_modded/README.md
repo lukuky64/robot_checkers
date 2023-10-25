@@ -20,9 +20,11 @@ source ~/catkin_ws/devel/setup.bash
 ```
 
 If not done yet:
+<details>
 ```Bash
 rosrun camera_calibration cameracalibrator.py --size 8x6 --square 0.024 image:=/usb_cam/image_raw camera:=/usb_cam
 ```
+</details>
 
 ```Bash
 roslaunch usb_cam usb_cam-test.launch
