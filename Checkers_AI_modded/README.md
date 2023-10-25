@@ -14,20 +14,26 @@ colour of each checker on the board.
 
 ## To run detectCheckers:
 
+#### Compile workspace:
 ```Bash
 catkin_make
 source ~/catkin_ws/devel/setup.bash
 ```
 
-If not done yet:
+#### If camera is not calibrated:
+<details>
+  
 ```Bash
 rosrun camera_calibration cameracalibrator.py --size 8x6 --square 0.024 image:=/usb_cam/image_raw camera:=/usb_cam
 ```
+</details>
 
+#### Launch webcam:
 ```Bash
 roslaunch usb_cam usb_cam-test.launch
 ```
 
+#### Launch detection program:
 ```Bash
 python3 detectCheckers.py
 ```
