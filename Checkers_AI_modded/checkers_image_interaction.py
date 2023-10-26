@@ -40,6 +40,7 @@ import pygame, sys
 from pygame.locals import *
 from time import sleep
 from ros_publisher import ros_publisher
+import detectCheckers
 
 pygame.font.init()
 
@@ -72,6 +73,7 @@ class Game:
 		self.hop = False
 		self.loop_mode = loop_mode
 		self.selected_legal_moves = []
+		self.detect_inputChecker = detectCheckers.CheckerboardDetector
 
 	def setup(self):
 		"""Draws the window and board at the beginning of the game"""
@@ -82,12 +84,29 @@ class Game:
 		The event loop. This is where events are triggered
 		(like a mouse click) and then effect the game state.
 		"""
+		# -------------------------------------------------
+		# EDITING THIS
+		while True:
+			self.self.detect_inputChecker
+			
+
+
+
+		# -------------------------------------------------
+
+
 		mouse_pos = tuple(map(int, pygame.mouse.get_pos()))
 
 		self.mouse_pos = tuple(map(int, self.graphics.board_coords(mouse_pos[0], mouse_pos[1]))) # what square is the mouse in?
 
 		if self.selected_piece != None:
+
+			# debugging, remove after
+			print("line 92: ", self.selected_piece)
+
 			self.selected_legal_moves = self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop)
+			 
+			print("line 96: ", self.selected_legal_moves)
 
 		for event in pygame.event.get():
 
@@ -95,7 +114,9 @@ class Game:
 				self.terminate_game()
 
 			if event.type == MOUSEBUTTONDOWN:
+				# print(self.hop)
 				if self.hop == False:
+					print("hop is false")
 					if self.board.location(self.mouse_pos[0], self.mouse_pos[1]).occupant != None and self.board.location(self.mouse_pos[0], self.mouse_pos[1]).occupant.color == self.turn:
 						self.selected_piece = self.mouse_pos
 
@@ -105,6 +126,9 @@ class Game:
 
 						if self.mouse_pos not in self.board.adjacent(self.selected_piece[0], self.selected_piece[1]):
 							self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
+
+							# DO SOMETHING HERE 
+
 							self.hop = True
 							self.selected_piece = self.mouse_pos
 						else:
