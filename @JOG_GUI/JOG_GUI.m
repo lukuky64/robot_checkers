@@ -8,7 +8,12 @@ classdef JOG_GUI < handle
         currentJointPos_ = {};
         nextJointPos_ = {};
         guiHandles = struct();  % GUI handles
-        % motionPlanner = {};
+
+        % obstacles
+        vertex;
+        faces;
+        faceNormals;
+
     end
 
     methods
@@ -16,16 +21,18 @@ classdef JOG_GUI < handle
             for i = 1:length(bots)
                 obj.robot_{i} = bots{i};
             end
+            obj.createObstacles();
             obj.initialise();
             obj.createGUI();
-            % obj.setupMotionPlanner(bots);
         end
 
-        % function setupMotionPlanner(obj)
-        %     for i = 1:length(obj.robot_)
-        %         obj.motionPlanner{i} = MotionPlanner(obj.robot_{i}, );
-        %     end
-        % end
+        function createObstacles(obj)
+            prisms = {
+                [-0.15, -0.15,  0  ], [0.15, 0.15, 0.05];  % checkerboard
+                [-0.6, -0.6, -0.002], [0.6, 0.6, -0.001]}; % ground plane, has to be slightly below 0 to not trigger from the base
+            
+            [obj.vertex, obj.faces, obj.faceNormals] = checkCollision.createCollisionPrisms(prisms);
+        end
 
         function initialise(obj)
 
@@ -236,6 +243,10 @@ classdef JOG_GUI < handle
             q = jtraj(obj.currentJointPos_{robotNum_}, obj.nextJointPos_{robotNum_}, steps_);
             
             for i = 1:steps_
+                result = checkCollision.IsCollision(obj.robot_{robotNum_}.model, q(i,:), obj.faces, obj.vertex, obj.faceNormals); % collision detection part
+                if result
+                    return;
+                end
                 obj.robot_{robotNum_}.model.animate(q(i,:));
                 pause(0.01);
             end
