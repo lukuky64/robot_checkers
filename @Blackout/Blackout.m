@@ -21,7 +21,7 @@ classdef Blackout < handle
             try
                 rosnode('list');
             catch
-                setenv('ROS_MASTER_URI', 'http://172.19.125.11:11311/'); %http://localhost:11311/ % http://172.30.31.249:11311/
+                setenv('ROS_MASTER_URI', 'http://localhost:11311/'); %http://localhost:11311/ % http://172.30.31.249:11311/
                 rosinit;
             end
             
@@ -31,11 +31,12 @@ classdef Blackout < handle
         % change state of emergency variable based on ros node data
         function callback(obj, ~, msg)  % ~ to ignore the src parameter
             if msg.Data == 0
-                obj.emergency_state = false; 
+                obj.emergency_state = false;
             end
 
             if msg.Data == 1
                 obj.emergency_state = true;
+                msgbox('Emergency Stop Activated', 'Warning', 'warn');
             end
         end
         
