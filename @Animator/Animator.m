@@ -32,13 +32,13 @@ classdef Animator < handle
             self.board = Board(squareSize*8,boardHeight,Tboard);
             self.board.plotBoard();
             
-            self.
+          
             for i = 1:24
                 if i < 12
                     if i < 5
                         self.checkerPieces(i) = CheckerPiece('blue', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(0,7*squareSize,0)*transl(squaresize,0,0)* ...
+                            transl(0,7*squareSize,0)*transl(squareSize,0,0)* ...
                             transl(2*(i-1)*squareSize,0,0));
                             continue
                     elseif i < 9
