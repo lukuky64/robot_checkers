@@ -49,6 +49,7 @@ classdef Player < handle
                 movePositions(end-1,:), movePositions(end,:) )];
             traj = [traj; self.mp.trajectorySquareToAbove(movePositions ...
                 (end,:))];
+            display("Move to bin.")
             
             % moving prisoners to bin
             if size(movePositions,1) > 2

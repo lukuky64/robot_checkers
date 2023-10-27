@@ -40,6 +40,7 @@ import pygame, sys
 from pygame.locals import *
 from time import sleep
 from ros_publisher import ros_publisher
+import detectCheckers
 
 pygame.font.init()
 
@@ -72,6 +73,7 @@ class Game:
 		self.hop = False
 		self.loop_mode = loop_mode
 		self.selected_legal_moves = []
+		self.detect_inputChecker = detectCheckers.CheckerboardDetector
 
 	def setup(self):
 		"""Draws the window and board at the beginning of the game"""
@@ -82,44 +84,33 @@ class Game:
 		The event loop. This is where events are triggered
 		(like a mouse click) and then effect the game state.
 		"""
-		mouse_pos = tuple(map(int, pygame.mouse.get_pos()))
 
-		self.mouse_pos = tuple(map(int, self.graphics.board_coords(mouse_pos[0], mouse_pos[1]))) # what square is the mouse in?
+		# Newly added functionality. Test this to ensure it works.
+		# ---------------------------------------------------------------------------------------------------------------------
+		move_made = False
+		while not move_made:
+			from_to = self.detect_inputChecker.capture()
+			start_x, start_y = from_to[0]
+			end_x, end_y = from_to[1]
 
-		if self.selected_piece != None:
-			self.selected_legal_moves = self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop)
+			self.selected_piece = (start_x, start_y)
+			self.mouse_pos = (end_x, end_y)
 
-		for event in pygame.event.get():
-
-			if event.type == QUIT:
-				self.terminate_game()
-
-			if event.type == MOUSEBUTTONDOWN:
-				if self.hop == False:
-					if self.board.location(self.mouse_pos[0], self.mouse_pos[1]).occupant != None and self.board.location(self.mouse_pos[0], self.mouse_pos[1]).occupant.color == self.turn:
+			if self.selected_piece is not None:
+				self.selected_legal_moves = self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop)
+				if self.mouse_pos in self.selected_legal_moves:
+					self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
+					if self.mouse_pos not in self.board.adjacent(self.selected_piece[0], self.selected_piece[1]):
+						self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, 
+												self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
+						self.hop = True
 						self.selected_piece = self.mouse_pos
-
-					elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece[0], self.selected_piece[1]):
-
-						self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
-
-						if self.mouse_pos not in self.board.adjacent(self.selected_piece[0], self.selected_piece[1]):
-							self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
-							self.hop = True
-							self.selected_piece = self.mouse_pos
-						else:
-							self.end_turn()
-
-				if self.hop == True:
-					if self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop):
-						self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
-						self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
-
-					if self.board.legal_moves(self.mouse_pos[0], self.mouse_pos[1], self.hop) == []:
-							self.end_turn()
-
 					else:
-						self.selected_piece = self.mouse_pos
+						self.end_turn()
+					move_made = True
+				else:
+					print("Illegal move. Try again.")
+		# ---------------------------------------------------------------------------------------------------------------------
 
 
 	def update(self):
@@ -180,7 +171,7 @@ class Game:
 
 class Graphics:
 	def __init__(self):
-		self.caption = "Checkers"
+		self.caption = "Checkers with image interface"
 
 		self.fps = 60
 		self.clock = pygame.time.Clock()

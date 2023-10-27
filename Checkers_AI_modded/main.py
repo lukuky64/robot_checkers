@@ -1,4 +1,4 @@
-import checkers
+import checkers_image_interaction
 import gamebot
 from time import sleep
 ##COLORS##
@@ -19,7 +19,7 @@ SOUTHEAST = "southeast"
 
 def main():
     while True:
-        game = checkers.Game(loop_mode=False)
+        game = checkers_image_interaction.Game(loop_mode=False)
         game.setup()
         bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
                           end_eval='sum_of_dist', method='alpha_beta', depth=3)
