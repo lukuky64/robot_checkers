@@ -20,7 +20,7 @@ def main():
     pub = rospy.Publisher("eStop_state", Int32, queue_size=10, latch=True)
 
     # Initialise serial port with baudrate 9600
-    ser = serial.Serial(port, 9600)
+    ser = serial.Serial(port, 9600, timeout=0.1)
 
     msg = 0  # Initialize msg
 
@@ -30,6 +30,7 @@ def main():
         if ser.in_waiting > 0:
             print("message rceived...")
             arduino_data = ser.readline().decode("utf-8").strip()
+            #print(arduino_data)
             if arduino_data == "stopped":
                 print("STOPPED")
                 msg = 1  # Stopped
