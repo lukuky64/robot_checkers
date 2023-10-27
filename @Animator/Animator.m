@@ -8,7 +8,7 @@ classdef Animator < handle
         dobot
         cobot
         board
-        checkerPieces = zeros(1,24)
+        checkerPieces = {}
     end
 
     methods
@@ -28,25 +28,26 @@ classdef Animator < handle
                 cobotBaseBoardGap,0)*rpy2tr(0,0,pi/2);
             self.cobotRobotBaseClass = MyCobot320(TcobotBase);
             self.cobot = self.cobotRobotBaseClass.model;
+            hold on
             
             self.board = Board(squareSize*8,boardHeight,Tboard);
             self.board.plotBoard();
 
             for i = 1:24
-                if i < 12
+                if i < 13
                     if i < 5
-                        self.checkerPieces(i) = CheckerPiece('blue', ...
+                        self.checkerPieces{i} = CheckerPiece('blue', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
                             transl(0,7*squareSize,0)*transl(squareSize,0,0)* ...
                             transl(2*(i-1)*squareSize,0,0));
                             continue
                     elseif i < 9
-                        self.checkerPieces(i) = CheckerPiece('blue', ...
+                        self.checkerPieces{i} = CheckerPiece('blue', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
                             transl(0,6*squareSize,0)*transl(2*(i-5)*squareSize,0,0));
                             continue
                     else 
-                        self.checkerPieces(i) = CheckerPiece('blue', ...
+                        self.checkerPieces{i} = CheckerPiece('blue', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
                             transl(squareSize,0,0)*transl(0,5*squareSize,0)* ...
                             transl(2*(i-9)*squareSize,0,0));
@@ -54,17 +55,17 @@ classdef Animator < handle
                     end
                 else
                     if i < 17
-                        self.checkerPieces(i) = CheckerPiece('red', ...
+                        self.checkerPieces{i} = CheckerPiece('red', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
                             transl(2*(i-13)*squareSize,0,0));
                             continue
                     elseif i < 21
-                        self.checkerPieces(i) = CheckerPiece('red', ...
+                        self.checkerPieces{i} = CheckerPiece('red', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(squaresize,squareSize,0)*transl(2*(i-17)*squareSize,0,0));
+                            transl(squareSize,squareSize,0)*transl(2*(i-17)*squareSize,0,0));
                             continue
                     else 
-                        self.checkerPieces(i) = CheckerPiece('red', ...
+                        self.checkerPieces{i} = CheckerPiece('red', ...
                             Tboard*transl(squareSize/2,squareSize/2,0)* ...
                             transl(0,2*squareSize,0)*transl(2*(i-21)*squareSize,0,0));
                             continue
@@ -74,6 +75,7 @@ classdef Animator < handle
 
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
+            axis([-.8 .8 -.3 1.1 0 1.2])
         end
 
         function [traj,wasStopped] = animatePlayerMove(self,traj,varargin)

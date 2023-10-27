@@ -38,3 +38,10 @@ roslaunch usb_cam usb_cam-test.launch
 python3 detectCheckers.py
 ```
 
+
+# RUN ROSBAG:
+```Bash
+cd ~/catkin_ws/src/robot_checkers/Checkers_AI_modded
+rosbag play --pause my_bag.bag
+```
+
