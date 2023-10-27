@@ -4,6 +4,7 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import copy
+from threading import Event
 
 class CheckerboardDetector:
     # ------------------------------------------------------------------
@@ -20,6 +21,10 @@ class CheckerboardDetector:
         self.image_sub = None
         self.previous_capture = None
         self.firstMove = True
+
+        self.movedFrom = None
+        self.movedTo = None
+        self.process_done = Event()
 
         # Check if topic is available
         try:
@@ -52,6 +57,9 @@ class CheckerboardDetector:
                     from_position = position
             
             print("Fr: ", from_position, "\nTo: ", to_position)
+            
+            self.movedFrom = from_position
+            self.movedTo = to_position
         
         # setting previous capture to current for next iteration
         self.previous_capture = copy.deepcopy(current_capture)
@@ -142,6 +150,7 @@ class CheckerboardDetector:
 
                     self.locations.clear()
 
+                    self.process_done.set()  # Signal that the processing is done
                     self.process_image = False
                     self.callbackCount = 0
                     self.firstMove = False
@@ -149,30 +158,47 @@ class CheckerboardDetector:
             self.callbackCount += 1
 
 
-if __name__ == '__main__':
-    rospy.init_node('checkerboard_detector', anonymous=True)
-    detector = CheckerboardDetector()
+    def capture(self):
+        while True:
+            input("Press Enter to capture: ")
+            self.process_image = True
 
-    if detector.image_sub is None:  # Add this check
-        exit(1)
+            self.process_done.wait()  # Wait until the event is set in callback
+            self.process_done.clear()  # Reset the event for the next round
 
-    try:
-        exit_flag = False
-        while True:  # Loop to wait for Enter key
-            while(not detector.process_image):
-                user_input = input("Press Enter to capture or type 'exit' to quit: ")
+            localMovedFrom = self.movedFrom
+            localMovedTo = self.movedTo
 
-                if user_input.lower() == 'exit':  # Exit the program
-                    print("Exiting...")
-                    exit_flag = True
-                    break
+            if self.movedFrom is not None:
+                self.movedFrom = None
+                self.movedTo = None
+                return [localMovedFrom, localMovedTo]
 
-                detector.process_image = True  # Set the flag to True when Enter is pressed
+
+# if __name__ == '__main__':
+#     rospy.init_node('checkerboard_detector', anonymous=True)
+#     detector = CheckerboardDetector()
+
+#     if detector.image_sub is None:  # Add this check
+#         exit(1)
+
+#     try:
+#         exit_flag = False
+#         while True:  # Loop to wait for Enter key
+#             while(not detector.process_image):
+#                 user_input = input("Press Enter to capture or type 'exit' to quit: ")
+
+#                 if user_input.lower() == 'exit':  # Exit the program
+#                     print("Exiting...")
+#                     exit_flag = True
+#                     break
+
+#                 detector.process_image = True  # Set the flag to True when Enter is pressed
             
-            if exit_flag:
-                break
+#             if exit_flag:
+#                 break
 
-    except KeyboardInterrupt:
-        print("Ctrl+C detected. Shutting down.")
+#     except KeyboardInterrupt:
+#         print("Ctrl+C detected. Shutting down.")
 
-    rospy.signal_shutdown('Exit requested')  # Shutdown the ROS node
+#     rospy.signal_shutdown('Exit requested')  # Shutdown the ROS node
