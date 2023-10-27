@@ -14,8 +14,17 @@ zOffset = 0;
 
 
 [f,v,data] = plyread('Scenery.ply','tri'); % enter name of ply file to be displayed
+<<<<<<< HEAD
+<<<<<<< HEAD
+    
+=======
 
 
+>>>>>>> 5b6779e88cd643681d869541beb0d0b602ddb3ef
+=======
+
+
+>>>>>>> cc9e92964f4582795621ca134511d69d2901c219
 % sets vertex colours in rgb values from ply file
 vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
 
