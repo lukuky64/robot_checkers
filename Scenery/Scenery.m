@@ -3,16 +3,23 @@
 % f = faceData;
 % v = vertexData;
 
-clf
 
+hold on
 
 %offsets change the location of the object
 xOffset = 0;
 yOffset = 0;
 zOffset = 0;
 
+
+
 [f,v,data] = plyread('Scenery.ply','tri'); % enter name of ply file to be displayed
+<<<<<<< HEAD
     
+=======
+
+
+>>>>>>> 5b6779e88cd643681d869541beb0d0b602ddb3ef
 % sets vertex colours in rgb values from ply file
 vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
 

@@ -32,6 +32,7 @@ classdef Animator < handle
             self.board.plotBoard();
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
+            
         end
 
         function [traj,wasStopped] = animatePlayerMove(self,traj,varargin)

@@ -20,7 +20,7 @@ def main():
     pub = rospy.Publisher("eStop_state", Int32, queue_size=10, latch=True)
 
     # Initialise serial port with baudrate 9600
-    ser = serial.Serial(port, 9600)
+    ser = serial.Serial(port, 9600, timeout=0.1)
 
     msg = 0  # Initialize msg
 

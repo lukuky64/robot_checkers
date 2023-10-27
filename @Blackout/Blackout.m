@@ -31,7 +31,7 @@ classdef Blackout < handle
         % change state of emergency variable based on ros node data
         function callback(obj, ~, msg)  % ~ to ignore the src parameter
             if msg.Data == 0
-                obj.emergency_state = false; 
+                obj.emergency_state = false;
             end
 
             if msg.Data == 1
