@@ -8,8 +8,8 @@ classdef Game < handle
         cobotQready = deg2rad([0 25 90 -45 -90 0])
         squareSize = .035; % checkers square size [m] (if change, change Tboard)
         boardHeight = .05; % checkers board height [m] (if change, change Tboard)
-        Tboard = transl(-(.035*8)/2,.04,.05); % checkers board transform (ensure no rotation wrt. world)
-        TbinDobot = transl(-.2,.2,0);
+        Tboard = transl(-(.035*8)/2,.09,.05); % checkers board transform (ensure no rotation wrt. world)
+        TbinDobot = transl(-.2,Tboard(2,4)+(.035*8)/2,0);
         TbinCobot = transl(.2,.2,0); %---------
     end
 
