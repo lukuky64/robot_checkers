@@ -6,7 +6,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import copy
 from threading import Event
 
-class CheckerboardDetector:
+class detectCheckers:
     # ------------------------------------------------------------------
     # This class identifies the coordinates of blue checkers on an 8x8
     # checkerboard in an image feed. Assumes the board is perpendicular
@@ -150,12 +150,13 @@ class CheckerboardDetector:
 
                     self.locations.clear()
 
-                    self.process_done.set()  # Signal that the processing is done
+                    
                     self.process_image = False
                     self.callbackCount = 0
                     self.firstMove = False
             
             self.callbackCount += 1
+            self.process_done.set()  # Signal that the processing is done
 
 
     def capture(self):
@@ -177,7 +178,7 @@ class CheckerboardDetector:
 
 # if __name__ == '__main__':
 #     rospy.init_node('checkerboard_detector', anonymous=True)
-#     detector = CheckerboardDetector()
+#     detector = detectCheckers()
 
 #     if detector.image_sub is None:  # Add this check
 #         exit(1)
