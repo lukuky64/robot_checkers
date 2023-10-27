@@ -36,6 +36,7 @@ classdef Blackout < handle
 
             if msg.Data == 1
                 obj.emergency_state = true;
+                msgbox('Collision Detected!', 'Warning', 'warn');
             end
         end
         
