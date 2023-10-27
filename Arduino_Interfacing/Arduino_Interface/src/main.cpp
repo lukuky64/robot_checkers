@@ -1,3 +1,5 @@
+//#include <ros.h>
+//#include <std_msgs/String.h>
 #include <Arduino.h>
 #include <Bounce2.h>
 
@@ -38,7 +40,7 @@ void setup()
 {
 
   Serial.begin(9600);
-  Serial.println("serial started");
+  Serial.println("running");
 
 // led init
   pinMode(redPin, OUTPUT);
@@ -85,17 +87,18 @@ void stateMachine(int state, int stp)
   switch (state)
   {
   case 1: //running
-    Serial.println("running");
+    //Serial.println("running");
     setColour("green");
     if (eStop.pressed())
     {
+      Serial.println("stopped");
       progState = 2;
       stopState = 1; 
     }
     
     break;
   case 2: //stopped
-    Serial.println("stopped");
+    
     setColour("red");
     if (eStop.pressed()){
       stopState = 0;
@@ -107,7 +110,7 @@ void stateMachine(int state, int stp)
     
     break;
   case 3: // armed
-    Serial.println("stopped"); // can be changed to armed if you want it to publish armed state
+    //Serial.println("stopped"); // can be changed to armed if you want it to publish armed state
     setColour("orange");
     if (eStop.pressed())
     {
@@ -118,6 +121,7 @@ void stateMachine(int state, int stp)
     }
     if ((stp == 0) && (resume.pressed()))
     {
+      Serial.println("running"); 
       progState = 1;
     }
     break;

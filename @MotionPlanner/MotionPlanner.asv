@@ -224,11 +224,9 @@ classdef MotionPlanner < handle
                 stepDistance = self.endEffectorStepSize; % mm x 1e-3 m/mm
             end
             steps = double(round(trajDistance/stepDistance));
-            % check if relevant stepIncrement appropriate for trajDistance:
             if steps < 1 || isempty(steps)
-                steps = 5;
+                fractDists = jtraj(0,1,steps);
             end
-            fractDists = jtraj(0,1,steps);
             
             % compute attendant matrix of joint states:
             trajTransforms = ctraj(T0, Tpp, fractDists);

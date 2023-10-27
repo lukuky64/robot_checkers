@@ -29,7 +29,7 @@ classdef Player < handle
 
         function traj = processTaskTrajectory(self, task)
             % moving Player's piece:
-            movePositions = self.movePositions(task)
+            movePositions = self.movePositions(task);
             traj = zeros(1,self.mp.robot.n);
             if self.isCobot == 1
                 traj = self.mp.interpolationTrajectoryToReady();
@@ -45,14 +45,14 @@ classdef Player < handle
                         movePositions(i-1,:), movePositions(i,:))];
                 end
             end
-            traj = [traj; self.mp.trajectorySquareToSquare( ...
-                movePositions(end-1,:), movePositions(end,:) )];
+            traji = self.mp.trajectorySquareToSquare( ...
+                movePositions(end-1,:), movePositions(end,:) );
+            traj = [traj; traji];
             traj = [traj; self.mp.trajectorySquareToAbove(movePositions ...
                 (end,:))];
-            display("Move to bin.")
             
             % moving prisoners to bin
-            if size(movePositions,1) > 2
+            if ~isempty(task{3})
                 prisonerPositions = task{3};
                 for i=1:size(prisonerPositions,1)
                     traj = [traj; self.mp.trajectoryMoveToSquare( ...
@@ -65,7 +65,7 @@ classdef Player < handle
             
             % return home:
             if self.isCobot == 1
-                traj = [traj; self.mp.cartesianTrajectoryToReady()];
+                traj = [traj; self.mp.interpolationTrajectoryToReady()];
                 traj = [traj; self.mp.trajectoryToHome()];
             else
                 traj = [traj; self.mp.trajectoryToHome()];
@@ -73,13 +73,13 @@ classdef Player < handle
         end
 
         function hasWon = hasWon(self)
-            hasWon = self.mp.numPrisoners == 8;
+            hasWon = (self.mp.numPrisoners == 8);
         end
     end
 
     methods (Static)
         function positions = movePositions(task)
-            numPrisoners = size(task{3},1)
+            numPrisoners = size(task{3},1);
             if numPrisoners == 0
                 positions = zeros(2, 2);
             else
