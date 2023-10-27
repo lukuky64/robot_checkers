@@ -21,7 +21,7 @@ classdef Blackout < handle
             try
                 rosnode('list');
             catch
-                setenv('ROS_MASTER_URI', 'http://172.30.31.249:11311/'); %http://localhost:11311/
+                setenv('ROS_MASTER_URI', 'http://172.19.125.11:11311/'); %http://localhost:11311/ % http://172.30.31.249:11311/
                 rosinit;
             end
             
