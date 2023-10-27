@@ -4,7 +4,7 @@ classdef Board < handle
         height
         base
         squareSize
-       
+        s
     end
 
     methods
@@ -16,6 +16,9 @@ classdef Board < handle
         end
 
         function [] = moveBoard(self, Tbase)
+            for i=1:6
+                delete(self.s(i))
+            end
             self.base = Tbase;
             self.plotBoard();
         end
@@ -25,28 +28,28 @@ classdef Board < handle
             % top:
             checkersRot = t2r(self.base);
             checkersNorm = checkersRot(1:3,3)';
-            self.plotIm('CheckersS.jpeg',400,checkersNorm,(transl(self.base)+ ...
+            self.s(1) = self.plotIm('CheckersS.jpeg',400,checkersNorm,(transl(self.base)+ ...
                 [self.length, self.length, 0]'/2), self.length, self.length);
             % sides y-y, then x-x:
             sideRot = t2r(self.base);
             sideNorm = sideRot(1:3,1)';
-            self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
+            self.s(2) = self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
                 [0 self.length -self.height]'/2), self.length, self.height);
-            self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
+            self.s(3) = self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
                 [self.length self.length/2 -self.height/2]'), self.length, self.height);
             sideNorm = sideRot(1:3,2)';
-            self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
+            self.s(4) = self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
                 [self.length 0 -self.height]'/2), self.length, self.height);
-            self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
+            self.s(5) = self.plotIm('Wood_Texture2.jpeg',400,sideNorm,(transl(self.base)+ ...
                 [self.length/2 self.length -self.height/2]'), self.length, self.height);
             % bottom:
             checkersRot = t2r(self.base);
             checkersNorm = checkersRot(1:3,3)';
-            self.plotIm('Wood_Texture2.jpeg',400,checkersNorm,(transl(self.base)+ ...
+            self.s(6) = self.plotIm('Wood_Texture2.jpeg',400,checkersNorm,(transl(self.base)+ ...
                 [self.length/2, self.length/2, -self.height]'), self.length, self.length);
         end
     
-        function [] = plotIm(self, imPath, N, normalVector, centerPoint, length, width)
+        function s = plotIm(self, imPath, N, normalVector, centerPoint, length, width)
             w = null(normalVector); 
             [P,Q] = meshgrid(-length/2:length/N:length/2,-width/2:width/N:width/2); 
             X = centerPoint(1)+w(1,1)*P+w(1,2)*Q; 

@@ -31,7 +31,7 @@ classdef Ros_subscriber < handle
         
         function checkSubscriber(obj)
             % This function can be empty as long as the callback function in the ROS subscriber is set to update obj.data
-            % You can also put additional code here to process the received data
+            % Put additional code here to process the received data
         end
         
         function run(obj)

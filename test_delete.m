@@ -2,25 +2,24 @@ close all
 clear all
 clf
 
-%%
+%% test cobot (next 3)
 squareSize = .035; % checkers square size [m] (if change, change Tboard)
 boardHeight = .05; % checkers board height [m] (if change, change Tboard)
 Tboard = transl(-(.035*8)/ ...
-    2,.04,.05); % checkers board transform (ensure no rotation wrt. world)
+    2,.09,.05); % checkers board transform (ensure no rotation wrt. world)
 TbinCobot = transl(.2,.2,0); %---------
 
 cobotQ0 = [pi/2 pi/8 3*pi/4 -3*pi/8 -pi/2 0];
         cobotQready = deg2rad([0 25 90 -45 -90 0]);
 
-cobotBaseBoardGap = .12;
+cobotBaseBoardGap = .10;
     TcobotBase = transl(0,squareSize*8+Tboard(2,4)+ ...
         cobotBaseBoardGap,0)*rpy2tr(0,0,pi/2);
 cobotRobotBaseClass = MyCobot320(TcobotBase);
     cobot = cobotRobotBaseClass.model;
     
-board = Board(squareSize*8,boardHeight,Tboard);
-board.plotBoard();
-
+%board = Board(squareSize*8,boardHeight,Tboard);
+%board.plotBoard();
 p = Player(cobot,cobotQ0, ...
     Tboard,squareSize, TbinCobot,'cobot', ...
     'cobotQready',cobotQready);
@@ -28,13 +27,42 @@ p = Player(cobot,cobotQ0, ...
 cobot.animate(cobotQ0);
 
 %%
-traj = p.processTaskTrajectory({0,[1,1;3,3],[2,2]});
+traj = p.processTaskTrajectory({0,[1,1;8,8],[2,2]});
 
 %%
 for i=1:size(traj,1)
     cobot.animate(traj(i,:));
     pause(.2);
 end
+
+%% test dobot (next 3)
+squareSize = .035; % checkers square size [m] (if change, change Tboard)
+boardHeight = .05; % checkers board height [m] (if change, change Tboard)
+Tboard = transl(-(.035*8)/ ...
+    2,.09,.05); % checkers board transform (ensure no rotation wrt. world)
+TbinDobot = transl(-.2,.2,0); %---------
+dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2];
+
+dobotRobotBaseClass = DobotMagician(rpy2tr(0,0,pi/2));
+dobot = dobotRobotBaseClass.model;
+
+board = Board(squareSize*8,boardHeight,Tboard);
+board.plotBoard();
+
+p = Player(dobot,dobotQ0, ...
+    Tboard,squareSize, TbinDobot,'dobot');
+
+dobot.animate(dobotQ0);
+
+%%
+traj = p.processTaskTrajectory({0,[1,1;3,3],[2,2]});
+
+%%
+for i=1:size(traj,1)
+    dobot.animate(traj(i,:));
+    pause(.1);
+end
+
 
 %% THIS SECTION FOR SIMPLE TESTING OF ABILITY OF COBOT TO REALISE DESIRED 
 % END-EFFECTOR FRAMES...

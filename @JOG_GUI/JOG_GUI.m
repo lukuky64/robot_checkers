@@ -8,8 +8,12 @@ classdef JOG_GUI < handle
         currentJointPos_ = {};
         nextJointPos_ = {};
         guiHandles = struct();  % GUI handles
-        obstacleModel; % all static objects in workspace that can collide with robot
-        % motionPlanner = {};
+
+        % obstacles
+        vertex;
+        faces;
+        faceNormals;
+
     end
 
     methods
@@ -20,18 +24,14 @@ classdef JOG_GUI < handle
             obj.createObstacles();
             obj.initialise();
             obj.createGUI();
-            % obj.setupMotionPlanner(bots);
         end
 
-        % function setupMotionPlanner(obj)
-        %     for i = 1:length(obj.robot_)
-        %         obj.motionPlanner{i} = MotionPlanner(obj.robot_{i}, );
-        %     end
-        % end
-
         function createObstacles(obj)
-            obj.obstacleModel = collisionBox(1.2,1.2,0.001);
-            CollisionModel(collisionBox(1.2,1.2,0.001))
+            prisms = {
+                [-0.15, -0.15,  0  ], [0.15, 0.15, 0.05];  % checkerboard
+                [-0.6, -0.6, -0.002], [0.6, 0.6, -0.001]}; % ground plane, has to be slightly below 0 to not trigger from the base
+            
+            [obj.vertex, obj.faces, obj.faceNormals] = checkCollision.createCollisionPrisms(prisms);
         end
 
         function initialise(obj)
@@ -243,12 +243,11 @@ classdef JOG_GUI < handle
             q = jtraj(obj.currentJointPos_{robotNum_}, obj.nextJointPos_{robotNum_}, steps_);
             
             for i = 1:steps_
-                obj.robot_{robotNum_}.model.animate(q(i,:));
-                collisionFlag = obj.robot_{robotNum_}.model.collisions(q(i,:), obj.obstacleModel);
-                if collisionFlag
-                    disp("Collision detected!");
-                    break;
+                result = checkCollision.IsCollision(obj.robot_{robotNum_}.model, q(i,:), obj.faces, obj.vertex, obj.faceNormals); % collision detection part
+                if result
+                    return;
                 end
+                obj.robot_{robotNum_}.model.animate(q(i,:));
                 pause(0.01);
             end
             

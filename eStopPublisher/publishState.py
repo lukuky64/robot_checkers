@@ -29,8 +29,8 @@ def main():
     while not rospy.is_shutdown():
         if ser.in_waiting > 0:
             print("message rceived...")
-            arduino_data = ser.readline().decode("utf-8").strip()
-            #print(arduino_data)
+            arduino_data = ser.readline().decode("utf-8", errors='ignore').strip()
+            #arduino_data = ser.readline().decode("utf-8").strip()
             if arduino_data == "stopped":
                 print("STOPPED")
                 msg = 1  # Stopped

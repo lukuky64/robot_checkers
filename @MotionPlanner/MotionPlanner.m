@@ -7,7 +7,7 @@ passed in through constructor-arguement.
 classdef MotionPlanner < handle
     properties (Constant)
         endEffectorStepSize = 8 *1e-3; % m
-        endEffectorStepSizePrecise = 4 *1e-3; % m
+        endEffectorStepSizePrecise = 3 *1e-3; % m
         checkerPieceHeight = 4 *1e-3; % m
     end
 
@@ -67,7 +67,6 @@ classdef MotionPlanner < handle
             % transform to board position (half the height of a checkers'
             % piece above particular square center):
             Tpos = self.Tboard*transl([(boardPos-0.5).*self.squareSize self.checkerPieceHeight/2])*rpy2tr(0, 0, -pi/2);
-            trplot(Tpos);
             % transform to point above target board position:
             Tabove = transl(0, 0, 5*self.checkerPieceHeight)*Tpos;
 
@@ -209,8 +208,12 @@ classdef MotionPlanner < handle
                 eTc = transl(0,.095,0)*rpy2tr(-pi/2,0,0);
                 % Tp conditioned for z-down and TCP offset:
                 Tpp = Tp*rpy2tr(pi,0,0)*inv(eTc)*rpy2tr(0,-pi/2,0);
+                Pp = transl(Tpp);
+            else
+                eTc = transl(0,0,-.02);
+                Tpp = Tp*inv(eTc);
+                Pp = transl(Tp);
             end
-            Pp = transl(Tpp);
 
             % compute fractional increment by which end-effector will 
             % track the trajectory:
@@ -220,7 +223,11 @@ classdef MotionPlanner < handle
             else
                 stepDistance = self.endEffectorStepSize; % mm x 1e-3 m/mm
             end
-            steps = double(round(trajDistance/stepDistance));            
+            steps = double(round(trajDistance/stepDistance));
+            % check if relevant stepIncrement appropriate for trajDistance:
+            if steps < 1 || isempty(steps)
+                steps = 5;
+            end
             fractDists = jtraj(0,1,steps);
             
             % compute attendant matrix of joint states:
