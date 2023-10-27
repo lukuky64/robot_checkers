@@ -29,7 +29,7 @@ classdef Game < handle
             self.playerBlue = Player(self.animator.cobot,self.cobotQ0, ...
                 self.Tboard,self.squareSize, self.TbinCobot,'cobot', ...
                 'cobotQready',self.cobotQready);
-            %self.gameBoard = GameBoard();
+            self.gameBoard = GameBoard();
             %self.startGame();
         end
 
