@@ -20,15 +20,14 @@ classdef Animator < handle
 
         function setupEnvironment(self,dobotQ0,cobotQ0,squareSize, ...
                 boardHeight,Tboard)
+            self.animateTable();
             self.dobotRobotBaseClass = DobotMagician(rpy2tr(0,0,pi/2));
-            self.dobot = self.dobotRobotBaseClass.model;
-            hold on
+            self.dobot = self.dobotRobotBaseClass.model;            
             cobotBaseBoardGap = .14;
             TcobotBase = transl(0,squareSize*8+Tboard(2,4)+ ...
                 cobotBaseBoardGap,0)*rpy2tr(0,0,pi/2);
             self.cobotRobotBaseClass = MyCobot320(TcobotBase);
             self.cobot = self.cobotRobotBaseClass.model;
-            hold on
             
             self.board = Board(squareSize*8,boardHeight,Tboard);
             self.board.plotBoard();
@@ -75,7 +74,7 @@ classdef Animator < handle
 
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
-            axis([-.8 .8 -.3 1.1 0 1.2])
+            axis([-.8 .8 -.1 .9 -1 1])
         end
 
         function [traj,wasStopped] = animatePlayerMove(self,traj,varargin)
@@ -120,6 +119,20 @@ classdef Animator < handle
                 end
             end
             wasStopped = 0;
+        end
+        
+        function animateTable(self)
+            %offsets change the location of the object
+            xOffset = 0;
+            yOffset = .2;
+            zOffset = -1;
+            % enter name of ply file to be displayed
+            [f,v,data] = plyread('Scenery.ply','tri'); 
+            % sets vertex colours in rgb values from ply file
+            vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
+            %plotting
+            trisurf(f,v(:,1)+ xOffset,v(:,2)+ yOffset, v(:,3)+ zOffset,'FaceVertexCData',vertexColours,'Edgecolor','interp','EdgeLighting','flat');
+    
         end
     end
 end

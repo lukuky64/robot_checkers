@@ -104,7 +104,7 @@ classdef checkCollision < handle
             plotOptions.plotFaces = true;
             plotOptions.FaceColor = [0.8, 0.8, 0.8];
             plotOptions.EdgeColor = 'k';
-            plotOptions.FaceAlpha = 0.6;
+            plotOptions.FaceAlpha = 0.01;
         
             vertex = [];
             faces = [];
