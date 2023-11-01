@@ -37,12 +37,10 @@ classdef MyCobot320 < RobotBaseClass
             
         % end effector parameters
 
-
-            
-             self.useTool = 1;                                  % toggle on and off tool
-             self.toolFilename = 'MyCobot320EndEffector1.ply';  %ply file that replaces final link
-             self.toolTr = transl(0, 0.095, 0);                 % tip of the end effector                   
-           
+             self.useTool = 1;
+             self.toolFilename = 'MyCobot320EndEffector1.ply';
+             self.toolTr = transl(0, 0.095, 0);
+                       
              self.model = SerialLink(link,'name',self.name);
         end
     end

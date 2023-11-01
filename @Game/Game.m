@@ -29,8 +29,8 @@ classdef Game < handle
             self.playerBlue = Player(self.animator.cobot,self.cobotQ0, ...
                 self.Tboard,self.squareSize, self.TbinCobot,'cobot', ...
                 'cobotQready',self.cobotQready);
-            self.gameBoard = GameBoard();
-            self.startGame();
+            %self.gameBoard = GameBoard();
+            %self.startGame();
         end
 
         % could have blackout interrupt delete this version of game and

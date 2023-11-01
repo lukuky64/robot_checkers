@@ -3,12 +3,13 @@ classdef CheckerPiece < handle
         base
         colour
         plotHandle
+        Toffset = transl(0,0,0)
     end
 
     methods
         function self = CheckerPiece(colour, base)
             self.colour = colour;
-            self.base = base;
+            self.base = base*self.Toffset;
             self.plotMe();
         end
 
@@ -22,12 +23,11 @@ classdef CheckerPiece < handle
             self.plotHandle = trisurf(f,v(:,1)+ self.base(1,4),v(:,2)+ self.base(2,4), ...
                 v(:,3)+ self.base(3,4),'FaceVertexCData',vertexColours, ...
                 'Edgecolor','interp','EdgeLighting','flat');
-            
         end
 
         function moveMe(self,T)
             delete(self.plotHandle);
-            self.base = T;
+            self.base = T*self.Toffset;
             self.plotMe();
         end
      end 
