@@ -22,6 +22,7 @@ def main():
     while True:
         game = checkers_image_interaction.Game(loop_mode=False) # checkers_image_interaction
         game.setup()
+        game.update()
         bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
                           end_eval='sum_of_dist', method='alpha_beta', depth=3)
         random_bot_blue = gamebot.Bot(
@@ -37,7 +38,7 @@ def main():
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 sleep(0.5)
                 game.player_turn()
-                count_nodes = bot.step(game.board, True)
+                #count_nodes = bot.step(game.board, True)
                 #print('Total nodes explored in this step are', count_nodes)
                 game.update()
             if game.endit:

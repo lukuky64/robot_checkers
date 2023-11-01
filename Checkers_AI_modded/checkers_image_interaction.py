@@ -84,9 +84,10 @@ class Game:
 		The event loop. This is where events are triggered
 		(like a mouse click) and then effect the game state.
 		"""
+		#
 
 		if self.turn == BLUE:
-			# Newly added functionality. Test this to ensure it works.
+			# !!! Newly added functionality for checker detection input
 			# ---------------------------------------------------------------------------------------------------------------------
 			move_made = False
 			while not move_made:
@@ -353,11 +354,13 @@ class Board:
 
 		# initialize the pieces and put them in the appropriate squares
 
+		# !!! modifying the amount of checkers on the board
+
 		for x in range(8):
-			for y in range(3):
+			for y in range(2,3):
 				if matrix[x][y].color == BLACK:
 					matrix[x][y].occupant = Piece(RED)
-			for y in range(5, 8):
+			for y in range(5, 6):
 				if matrix[x][y].color == BLACK:
 					matrix[x][y].occupant = Piece(BLUE)
 
