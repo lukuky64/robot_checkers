@@ -6,8 +6,19 @@ import os
 from std_msgs.msg import UInt8, Int32
 
 
+#--- codes for estop_state---
+
+# 0 = INVALID
+# 1 = DISCONNECTED
+# 2 = INITIALISING
+# 3 = ESTOPPED
+# 4 = OPERATING
+# 5 = PAUSED
+# 6 = STOPPED
+
+
 def main():
-    port = "/dev/ttyUSB1"  # "/dev/ttyUSB0" "/dev/ttyACM0"
+    port = "/dev/ttyUSB0"  # "/dev/ttyUSB0" "/dev/ttyACM0"
 
     # Wait for Arduino to be connected
     while not os.path.exists(port):
@@ -18,11 +29,11 @@ def main():
     rospy.init_node("arduino_serial_to_ros", anonymous=True)
 
     # Create ROS publisher
-    pub = rospy.Publisher("eStop_state", Int32, queue_size=10, latch=True)
+    pub = rospy.Publisher("eStop_state", UInt8, queue_size=10, latch=True)
 
     # Create ROS publisher for real DoBot Magician
     pub_DoBot = rospy.Publisher(
-        "/dobot_magician/target_safety_status", UInt8, queue_size=10, latch=True
+        "/dobot_magician/target_safety_status", Int32, queue_size=10, latch=True
     )
 
     # Initialise serial port with baudrate 9600
@@ -43,10 +54,10 @@ def main():
                     msg = 1
                     doBot_msg = 3
                 elif arduino_data_int == 2:
-                    print("INITIALISATION")
+                    print("STOPPED")
                     doBot_msg = 3
                 elif arduino_data_int == 1:
-                    print("RUNNING")
+                    print("OPERATING")
                     msg = 0
                     doBot_msg = 4
 
