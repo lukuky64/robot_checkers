@@ -1,139 +1,88 @@
-classdef Animator < handle
+classdef Game < handle
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
-
-    properties
-        dobotRobotBaseClass
-        cobotRobotBaseClass
-        dobot
-        cobot
-        board
-        checkerPieces = {}
-        blackout = Blackout()
+    
+    properties (Constant)
+        dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
+        cobotQ0 = [pi/2 pi/8 3*pi/4 -3*pi/8 -pi/2 0]
+        cobotQready = deg2rad([0 25 90 -45 -90 0])
+        squareSize = .035; % checkers square size [m] (if change, change Tboard)
+        boardHeight = .05; % checkers board height [m] (if change, change Tboard)
+        Tboard = transl(-(.035*8)/2,.09,.05); % checkers board transform (ensure no rotation wrt. world)
+        TbinDobot = transl(-.2,.2,0);
+        TbinCobot = transl(.2,.2,0); %---------
     end
-
+    
+    properties
+        animator
+        playerRed
+        playerBlue
+        gameBoard
+    end
+    
     methods
-        function self = Animator(dobotQ0,cobotQ0,squareSize,boardHeight, ...
-                Tboard)
-            self.setupEnvironment(dobotQ0,cobotQ0,squareSize,boardHeight, ...
-                Tboard);
-        end
-
-        function setupEnvironment(self,dobotQ0,cobotQ0,squareSize, ...
-                boardHeight,Tboard)
-            self.animateTable();
-            self.dobotRobotBaseClass = DobotMagician(rpy2tr(0,0,pi/2));
-            self.dobot = self.dobotRobotBaseClass.model;            
-            cobotBaseBoardGap = .14;
-            TcobotBase = transl(0,squareSize*8+Tboard(2,4)+ ...
-                cobotBaseBoardGap,0)*rpy2tr(0,0,pi/2);
-            self.cobotRobotBaseClass = MyCobot320(TcobotBase);
-            self.cobot = self.cobotRobotBaseClass.model;
-            
-            self.board = Board(squareSize*8,boardHeight,Tboard);
-            self.board.plotBoard();
-
-            for i = 1:24
-                if i < 13
-                    if i < 5
-                        self.checkerPieces{i} = CheckerPiece('blue', ...
-                            Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(0,7*squareSize,0)*transl(squareSize,0,0)* ...
-                            transl(2*(i-1)*squareSize,0,0));
-                            continue
-                    elseif i < 9
-                        self.checkerPieces{i} = CheckerPiece('blue', ...
-                            Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(0,6*squareSize,0)*transl(2*(i-5)*squareSize,0,0));
-                            continue
-                    else 
-                        self.checkerPieces{i} = CheckerPiece('blue', ...
-                            Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(squareSize,0,0)*transl(0,5*squareSize,0)* ...
-                            transl(2*(i-9)*squareSize,0,0));
-                            continue
-                    end
-                else
-                    if i < 17
-                        self.checkerPieces{i} = CheckerPiece('red', ...
-                            Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(2*(i-13)*squareSize,0,0));
-                            continue
-                    elseif i < 21
-                        self.checkerPieces{i} = CheckerPiece('red', ...
-                            Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(squareSize,squareSize,0)*transl(2*(i-17)*squareSize,0,0));
-                            continue
-                    else 
-                        self.checkerPieces{i} = CheckerPiece('red', ...
-                            Tboard*transl(squareSize/2,squareSize/2,0)* ...
-                            transl(0,2*squareSize,0)*transl(2*(i-21)*squareSize,0,0));
-                            continue
-                    end
-                end
-            end
-
-            self.dobot.animate(dobotQ0);
-            self.cobot.animate(cobotQ0);
-            axis([-1 1 -.6 1.1 -1 .8])
-        end
-
-        function [traj,wasStopped] = animatePlayerMove(self,traj,varargin)
-            % parse option of dobot or cobot:
-            %robotSelection;
-            for i = 1:2:length(varargin)
-                argin = varargin;
-                option = argin{i};
-                value = argin{i + 1};
-                % check and set options
-                if strcmp(option, 'robot')
-                    robotSelection = value;
-                else
-                    error('Invalid option: %s', option);
-                end
-            end
-
-            % animate robot:
-            if robotSelection == 'cobot'
-                for i=1:size(traj,1)
-                    % check if estopped pressed
-                    if klmself.blackout.activated()
-                        % return residual trajectory:
-                        traj = traj(i:end,:);
-                        wasStopped = 1;
-                        return
-                    end
-                    self.cobot.animate(traj(i,:));
-                    pause(25^-1);
-                end
-            elseif robotSelection == 'dobot'
-                for i=1:size(traj,1)
-                    % check if estopped pressed
-                    if self.blackout.activated()
-                        % return residual trajectory:
-                        traj = traj(i:end,:);
-                        wasStopped = 1;
-                        return
-                    end
-                    self.dobot.animate(traj(i,:));
-                    pause(25^-1);
-                end
-            end
-            wasStopped = 0;
+        function self = Game()
+            self.animator = Animator(self.dobotQ0,self.cobotQ0,self.squareSize, ...
+                self.boardHeight,self.Tboard);
+            self.playerRed = Player(self.animator.dobot,self.dobotQ0, ...
+                self.Tboard,self.squareSize,self.TbinDobot,'dobot');
+            self.playerBlue = Player(self.animator.cobot,self.cobotQ0, ...
+                self.Tboard,self.squareSize, self.TbinCobot,'cobot', ...
+                'cobotQready',self.cobotQready);
+            %self.gameBoard = GameBoard();
+            %self.startGame();
         end
         
-        function animateTable(self)
-            %offsets change the location of the object
-            xOffset = 0;
-            yOffset = .2;
-            zOffset = -1;
-            % enter name of ply file to be displayed
-            [f,v,data] = plyread('Scenery.ply','tri'); 
-            % sets vertex colours in rgb values from ply file
-            vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
-            %plotting
-            trisurf(f,v(:,1)+ xOffset,v(:,2)+ yOffset, v(:,3)+ zOffset,'FaceVertexCData',vertexColours,'Edgecolor','interp','EdgeLighting','flat');
-    
+        % could have blackout interrupt delete this version of game and
+        % then start a new recovered one
+        
+        function startGame(self)
+            self.gameBoard.run();
+            gameWinner = 0;
+            wasStopped;
+            while gameWinner == 0
+                if ~isempty(self.gameBoard.tasks_)
+                    task = self.gameBoard.tasks_{1};
+                    if (task{1} == 0) && ~self.animator.blackout.activated % blue/cobot turn
+                        traj = self.playerBlue.processTaskTrajectory(task);
+                        if ~wasStopped
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,'robot','cobot');
+                        else
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(trajResidual,'robot','cobot');
+                        end
+                        if ~(size(traj,1) == size(trajResidual,1)) % if: estop pressed during animatePlayerMove()
+                            traj = trajResidual; % traj = rows of traj not yet animated
+                        else
+                            self.gameBoard.removeTask(1);
+                        end
+                        
+                        if self.playerBlue.hasWon()
+                            gameWinner = 'blue';
+                        end
+                    elseif (task{1} == 1) && ~self.animator.blackout.activated % red/dobot turn
+                        traj = self.playerRed.processTaskTrajectory(task);
+                        if ~wasStopped
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,'robot','dobot');
+                        else
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(trajResidual,'robot','dobot');
+                        end
+                        if ~(size(traj,1) == size(trajResidual,1)) % if: estop pressed during animatePlayerMove()
+                            traj = trajResidual; % traj = rows of traj not yet animated
+                        else
+                            self.gameBoard.removeTask(1);
+                        end
+                        if self.playerRed.hasWon()
+                            gameWinner = 'red';
+                        end
+                    end
+                end
+                pause(0.1)
+            end
+            display("The "+gameWinner+" team has won the game.")
         end
     end
 end
+
+
+
+
