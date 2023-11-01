@@ -9,6 +9,7 @@ classdef Animator < handle
         cobot
         board
         checkerPieces = {}
+        blackout = Blackout()
     end
 
     methods
@@ -74,12 +75,12 @@ classdef Animator < handle
 
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
-            axis([-.8 .8 -.1 .9 -1 1])
+            axis([-1 1 -.6 1.1 -1 .8])
         end
 
         function [traj,wasStopped] = animatePlayerMove(self,traj,varargin)
             % parse option of dobot or cobot:
-            robotSelection;
+            %robotSelection;
             for i = 1:2:length(varargin)
                 argin = varargin;
                 option = argin{i};
@@ -96,7 +97,7 @@ classdef Animator < handle
             if robotSelection == 'cobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed
-                    if Blackout.activated
+                    if klmself.blackout.activated()
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -108,7 +109,7 @@ classdef Animator < handle
             elseif robotSelection == 'dobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed
-                    if Blackout.activated
+                    if self.blackout.activated()
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
