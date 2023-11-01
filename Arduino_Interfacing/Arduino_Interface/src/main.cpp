@@ -37,7 +37,7 @@ void setup()
 {
 
   Serial.begin(9600);
-  Serial.println("running");
+  Serial.println(1);
 
   // led init
   pinMode(redPin, OUTPUT);
@@ -82,7 +82,7 @@ void stateMachine(int state, int stp)
     setColour("green");
     if (eStop.pressed())
     {
-      Serial.println("stopped");
+      Serial.println(3);
       progState = 2;
       stopState = 1; // used to toggle estop
     }
@@ -98,6 +98,7 @@ void stateMachine(int state, int stp)
     if (stp == 0)
     {
       progState = 3;
+      Serial.println(2);
     }
 
     break;
@@ -114,7 +115,7 @@ void stateMachine(int state, int stp)
     }
     if ((stp == 0) && (resume.pressed()))
     {
-      Serial.println("running");
+      Serial.println(1);
       progState = 1;
     }
     break;
