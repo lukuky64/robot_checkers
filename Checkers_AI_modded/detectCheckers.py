@@ -81,6 +81,9 @@ class detectCheckers:
                 return
 
             gray_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+            # cv2.imshow("gray", gray_image)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
 
             # return if checkerboard is found + location of inner corners of board
             ret, corners = cv2.findChessboardCorners(gray_image, (7, 7), None)
@@ -99,7 +102,21 @@ class detectCheckers:
                     # image processing - blurring + dilation + watershed
                     hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
 
-                    lower_bound = np.array([0, 150, 100])
+
+                    # Split the HSV image into individual channels
+                    h, s, v = cv2.split(hsv)
+
+                    # Display the individual channels
+                    # cv2.imshow("Hue", h)
+                    # cv2.imshow("Saturation", s)
+                    # cv2.imshow("Value", v)
+
+                    # Wait for a key press and close the image windows
+                    # cv2.waitKey(0)
+                    # cv2.destroyAllWindows()
+
+
+                    lower_bound = np.array([0, 100, 100])
                     upper_bound = np.array([50, 255, 255])
                     mask_combined = cv2.inRange(hsv, lower_bound, upper_bound)
 
