@@ -38,7 +38,7 @@ def main():
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 sleep(0.5)
                 game.player_turn()
-                #count_nodes = bot.step(game.board, True)
+                count_nodes = bot.step(game.board, True)
                 #print('Total nodes explored in this step are', count_nodes)
                 game.update()
             if game.endit:
