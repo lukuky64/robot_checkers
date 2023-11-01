@@ -1,4 +1,4 @@
-%%
+%% To record
 jointStateSubscriber = rossubscriber('/dobot_magician/joint_states'); % Create a ROS Subscriber to the topic joint_states
 pause(2); % Allow some time for a message to appear
 
@@ -18,7 +18,7 @@ while true
 end
 
 
-%% execute trajectores
+%% load existing trajectores
 load("dobot_traj_examples.mat");
 %%
 
