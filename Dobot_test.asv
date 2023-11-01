@@ -85,7 +85,7 @@ for i = 1:length(trajectories)
     pause(0.5);
     % suction change happens at end of movement
     toolStateMsg.Data = [trajectories{2,i}]; % Send 1 for on and 0 for off
-    disp(targetJointTrajMsg.Points)
+    
     send(toolStatePub,toolStateMsg);
     pause(1);
 end
