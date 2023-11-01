@@ -74,6 +74,7 @@ load("dobot_traj_examples.mat");
 trajectoryPoint = rosmessage("trajectory_msgs/JointTrajectoryPoint");
 [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
 
+pause(3);
 for i = 1:length(trajectories)
     disp(['trajectory: ', num2str(i)]);
     jointTarget = trajectories{1,i};
@@ -84,7 +85,8 @@ for i = 1:length(trajectories)
     send(targetJointTrajPub,targetJointTrajMsg);
     pause(0.5);
     % suction change happens at end of movement
-    toolStateMsg.Data = [trajectories{2,i}]; % Send 1 for on and 0 for off 
+    toolStateMsg.Data = [trajectories{2,i}]; % Send 1 for on and 0 for off
+    
     send(toolStatePub,toolStateMsg);
     pause(1);
 end
