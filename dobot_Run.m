@@ -39,7 +39,7 @@ function[]= dobot_Run(data)
         targetJointTrajMsg.Points = trajectoryPoint;
         send(targetJointTrajPub,targetJointTrajMsg);
     
-        pause(0.5); % delay to allow robot to move before changing suciton state
+        pause(0.5); % delay to allow robot to move before changing suction state
     
      %% Suction
     
