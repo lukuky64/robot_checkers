@@ -78,7 +78,10 @@ class Game:
 		self.hop = False
 		self.loop_mode = loop_mode
 		self.selected_legal_moves = []
-		self.detect_inputChecker = detectCheckers.detectCheckers()
+		self.detect_inputChecker = None
+
+		if self.mode == CAMERA:
+			self.detect_inputChecker = detectCheckers.detectCheckers()
 
 	def setup(self):
 		"""Draws the window and board at the beginning of the game"""
