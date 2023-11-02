@@ -7,11 +7,11 @@ classdef Game < handle
         cobotQ0 = [pi/2 pi/8 3*pi/4 -3*pi/8 -pi/2 0]
         cobotQready = deg2rad([0 25 90 -45 -90 0])
         % the following are interdependent:
-        squareSize = .1478/8 % checkers square size [m] (if change, change Tboard)
-        boardHeight = .0005; % checkers board height [m] (if change, change Tboard)
-        Tboard = transl(-((.1478/8)*8)/2,.17,.0005); % checkers board transform (ensure no rotation wrt. world)
-        TbinDobot = transl(-3*((.1478/8)*8)/2,.17,0);
-        TbinCobot = transl(3*((.1478/8)*8)/2,-.17,0); %---------
+        squareSize = .025 % checkers square size [m] (if change, change Tboard)
+        boardHeight = .05; % checkers board height [m] (if change, change Tboard)
+        Tboard = transl(-(.025*8)/2,.17,.05); % checkers board transform (ensure no rotation wrt. world)
+        TbinDobot = transl(-(.025*8)/2,.17+(.025*8)/2,0);
+        TbinCobot = transl((.025*8)/2,.17+(.025*8)/2,0); %---------
     end
     
     properties
@@ -30,8 +30,8 @@ classdef Game < handle
             self.playerBlue = Player(self.animator.cobot,self.cobotQ0, ...
                 self.Tboard,self.squareSize, self.TbinCobot,'cobot', ...
                 'cobotQready',self.cobotQready);
-            %self.gameBoard = GameBoard();
-            %self.startGame();
+            self.gameBoard = GameBoard();
+            self.startGame();
         end
         
         % could have blackout interrupt delete this version of game and
@@ -44,7 +44,7 @@ classdef Game < handle
             while gameWinner == 0
                 if ~isempty(self.gameBoard.tasks_)
                     task = self.gameBoard.tasks_{1};
-                    if (task{1} == 0) %&&  ~self.animator.blackout.activated % blue/cobot turn-------------------
+                    if (task{1} == 0) &&  ~self.animator.blackout.activated % blue/cobot turn-------------------
                         [traj,toggleGripAfterIndex] = self.playerBlue.processTaskTrajectory(task);
                         if ~wasStopped
                             [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,toggleGripAfterIndex,'robot','cobot');
@@ -60,7 +60,7 @@ classdef Game < handle
                         if self.playerBlue.hasWon()
                             gameWinner = 'blue';
                         end
-                    elseif (task{1} == 1) % && ~self.animator.blackout.activated % red/dobot turn -------------------------
+                    elseif (task{1} == 1) && ~self.animator.blackout.activated % red/dobot turn -------------------------
                         [traj,toggleGripAfterIndex] = self.playerRed.processTaskTrajectory(task);
                         if ~wasStopped
                             [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,toggleGripAfterIndex,'robot','dobot');
