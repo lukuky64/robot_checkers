@@ -39,11 +39,11 @@ classdef Game < handle
         function startGame(self)
             self.gameBoard.run();
             gameWinner = 0;
-            wasStopped;
+            wasStopped = 0;
             while gameWinner == 0
                 if ~isempty(self.gameBoard.tasks_)
                     task = self.gameBoard.tasks_{1};
-                    if (task{1} == 0) && ~self.animator.blackout.activated % blue/cobot turn
+                    if (task{1} == 0) %&&  ~self.animator.blackout.activated % blue/cobot turn-------------------
                         traj = self.playerBlue.processTaskTrajectory(task);
                         if ~wasStopped
                             [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,'robot','cobot');
@@ -59,7 +59,7 @@ classdef Game < handle
                         if self.playerBlue.hasWon()
                             gameWinner = 'blue';
                         end
-                    elseif (task{1} == 1) && ~self.animator.blackout.activated % red/dobot turn
+                    elseif (task{1} == 1) % && ~self.animator.blackout.activated % red/dobot turn -------------------------
                         traj = self.playerRed.processTaskTrajectory(task);
                         if ~wasStopped
                             [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,'robot','dobot');

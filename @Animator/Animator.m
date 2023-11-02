@@ -9,7 +9,7 @@ classdef Animator < handle
         cobot
         board
         checkerPieces = {}
-        blackout = Blackout()
+        %blackout = Blackout()
     end
 
     methods
@@ -22,6 +22,8 @@ classdef Animator < handle
         function setupEnvironment(self,dobotQ0,cobotQ0,squareSize, ...
                 boardHeight,Tboard)
             self.animateTable();
+            hold on
+            self.animateFloor();
             self.dobotRobotBaseClass = DobotMagician(rpy2tr(0,0,pi/2));
             self.dobot = self.dobotRobotBaseClass.model;            
             cobotBaseBoardGap = .14;
@@ -75,7 +77,7 @@ classdef Animator < handle
 
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
-            axis([-1 1 -.6 1.1 -1 .8])
+            axis([-.8 .8 -.6 1 -1 .4])
         end
 
         function [traj,wasStopped] = animatePlayerMove(self,traj,varargin)
@@ -97,7 +99,7 @@ classdef Animator < handle
             if robotSelection == 'cobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed
-                    if klmself.blackout.activated()
+                    if false % self.blackout.activated() ---------------------
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -109,14 +111,14 @@ classdef Animator < handle
             elseif robotSelection == 'dobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed
-                    if self.blackout.activated()
+                    if false % self.blackout.activated()-----------------------
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
                         return
                     end
                     self.dobot.animate(traj(i,:));
-                    pause(25^-1);
+                    pause(15^-1);
                 end
             end
             wasStopped = 0;
@@ -133,7 +135,18 @@ classdef Animator < handle
             vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
             %plotting
             trisurf(f,v(:,1)+ xOffset,v(:,2)+ yOffset, v(:,3)+ zOffset,'FaceVertexCData',vertexColours,'Edgecolor','interp','EdgeLighting','flat');
-    
+        end
+
+        function animateFloor(self)
+            % Define the grid for the plane
+            [X, Y] = meshgrid(-2:0.1:2, -1.8:0.1:2.2);
+            
+            % Define the function for the plane (e.g., a simple z = f(x, y) equation)
+            height = -1;
+            Z = ones(size(X,1),size(X,2)).*height;
+            
+            % Create the surface plot
+            surf(X, Y, Z,'EdgeColor','none');
         end
     end
 end
