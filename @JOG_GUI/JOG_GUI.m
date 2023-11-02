@@ -8,6 +8,7 @@ classdef JOG_GUI < handle
         currentJointPos_ = {};
         nextJointPos_ = {};
         guiHandles = struct();  % GUI handles
+        estop_ = false;  % e-stop state: false means no e-stop, true means e-stop active
 
         % obstacles
         vertex;
@@ -63,6 +64,21 @@ classdef JOG_GUI < handle
             obj.guiHandles.modePanel = uibuttongroup('Position', [0.03 0.82 0.135 0.15]);  % Increase the height
             obj.guiHandles.jointMode = uicontrol('Style', 'radiobutton', 'String', 'Joint control', 'Position', [3 30 100 30], 'parent', obj.guiHandles.modePanel, 'Callback', @(src, event) obj.switchMode());  % Reposition
             obj.guiHandles.cartesianMode = uicontrol('Style', 'radiobutton', 'String', 'Cartesian control', 'Position', [3 0 100 30], 'parent', obj.guiHandles.modePanel, 'Callback', @(src, event) obj.switchMode());  % Reposition
+
+            % Add e-stop button
+            obj.guiHandles.estopButton = uicontrol('Style', 'pushbutton', 'String', 'E-STOP', 'Position', [130, 20, 60, 30], 'Callback', @(src, event) obj.estopButtonCallback(), 'BackgroundColor', 'green');
+        end
+
+        function estopButtonCallback(obj)
+            % Toggle e-stop state
+            obj.estop_ = ~obj.estop_;
+            
+            % Update status dot colour based on e-stop state
+            if obj.estop_
+                obj.guiHandles.estopButton.BackgroundColor = 'red';
+            else
+                obj.guiHandles.estopButton.BackgroundColor = 'green';
+            end
         end
 
         function switchMode(obj)
@@ -85,9 +101,13 @@ classdef JOG_GUI < handle
             end
 
             if strcmp(selectedMode, 'Joint control')
+                set(obj.guiHandles.goButton, 'Enable', 'on');
+                set(obj.guiHandles.liveCheckbox, 'Enable', 'on');
                 % create UI elements for Joint angle mode
                 obj.updateSliders();
             elseif strcmp(selectedMode, 'Cartesian control')
+                set(obj.guiHandles.goButton, 'Enable', 'off');
+                set(obj.guiHandles.liveCheckbox, 'Enable', 'off');
                 % create UI elements for Global cartesian mode
                 obj.createCartesianControls();
             end
@@ -234,6 +254,7 @@ classdef JOG_GUI < handle
 
 
         function status = moveRobot(obj, jointGoal_, robotNum_, steps_)
+            
             if robotNum_ > length(obj.robot_)
                 status = false;
                 return;
@@ -247,6 +268,15 @@ classdef JOG_GUI < handle
                 if result
                     return;
                 end
+                
+                % Check if e-stop is active
+                if obj.estop_
+                    obj.currentJointPos_{robotNum_} = obj.robot_{robotNum_}.model.getpos();
+                    %obj.updateSliders();
+                    status = false;
+                    return;
+                end
+
                 obj.robot_{robotNum_}.model.animate(q(i,:));
                 pause(0.01);
             end
@@ -258,11 +288,32 @@ classdef JOG_GUI < handle
 
 
         function nextQ = RRMCNextQ(obj, eeVel, robotNum_)
-            dt = 0.001; % physical seconds per animation step – eg. 0.001 renders 1 mm/step
+
+            eeVel = [eeVel, 0, 0, 0]';
+            qlim = obj.robot_{robotNum_}.model.qlim;
+            nJoints = size(qlim, 1);
+            q = obj.robot_{robotNum_}.model.getpos();
+            
+            dt = 0.002;
             J = obj.robot_{robotNum_}.model.jacob0(obj.robot_{robotNum_}.model.getpos());
-            invJ = inv(J(1:5,:));
-            jointVel = invJ*[eeVel 0 0]';
-            nextQ = obj.robot_{robotNum_}.model.getpos() + (jointVel*dt)';
+        
+            % damping parameter
+            lambda = 0.008;
+
+            % damped least squares
+            Jinv_dls = inv((J'*J)+lambda^2*eye(nJoints))*J';
+
+            dq = Jinv_dls*eeVel;
+            nextQ = q + dq'*dt;
+
+            % Check if any joint is out of its bounds
+            out_bounds = any(nextQ > qlim(:, 2)') || any(nextQ < qlim(:, 1)');
+            
+            if out_bounds
+                nextQ = obj.robot_{robotNum_}.model.getpos();
+            end
+            
         end
+
     end
 end

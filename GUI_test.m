@@ -13,8 +13,6 @@ interface_ = JOG_GUI(bots_);
 
 %% Create workspace visual objects
 
-
-%%
 hold on
 base = transl(-0.175, -0.175, 0.05);
 length = 0.35;
