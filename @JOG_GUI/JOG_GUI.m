@@ -67,7 +67,8 @@ classdef JOG_GUI < handle
 
             % Add e-stop button
             obj.guiHandles.estopButton = uicontrol('Style', 'pushbutton', 'String', 'E-STOP', 'Position', [130, 20, 60, 30], 'Callback', @(src, event) obj.estopButtonCallback(), 'BackgroundColor', 'green');
-
+            
+            %hold on;
             %obj.animateTable();
         end
 

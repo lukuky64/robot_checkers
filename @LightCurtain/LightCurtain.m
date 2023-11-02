@@ -10,8 +10,8 @@ classdef LightCurtain
 
     methods
         function obj = LightCurtain()
-            prisms = {[-0.4, -0.4, 0], [0.4, 0.4,   0.5]};  % wall
-            [obj.vertex, obj.faces, obj.faceNormals] = checkCollision.createCollisionPrisms(prisms, 0.2);
+            prisms = {[-0.6, -0.3, 0], [0.4, 0.6,   0.6]};  % wall
+            [obj.vertex, obj.faces, obj.faceNormals] = checkCollision.createCollisionPrisms(prisms, 0.01);
         end
 
 
@@ -30,6 +30,7 @@ classdef LightCurtain
                     plot3(intersectP(1), intersectP(2), intersectP(3), 'r*'); % plot the point of intersection
                     hold off
                     disp('Light Curtain Activated!');
+                    msgbox('Light Curtain Activated!', 'Warning', 'warn');
                     result = true;
                 end
             end
