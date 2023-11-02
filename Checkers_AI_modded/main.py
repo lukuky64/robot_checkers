@@ -20,7 +20,13 @@ SOUTHEAST = "southeast"
 
 def main():
     while True:
-        game = checkers_image_interaction.Game(loop_mode=False) # checkers_image_interaction
+
+        while True:
+            result = int(input("Do you want to detect checkers with camera? (1-yes, 0-no): "))
+            if result == 1 or result == 0:
+                break        
+
+        game = checkers_image_interaction.Game(loop_mode=False, game_mode= not result) # checkers_image_interaction
         game.setup()
         game.update()
         bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
