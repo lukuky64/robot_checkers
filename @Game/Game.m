@@ -1,7 +1,7 @@
 classdef Game < handle
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     properties (Constant)
         dobotQ0 = [pi/2 0 pi/4 3*pi/4 -pi/2]; % dobot's qHome
         cobotQ0 = [pi/2 pi/8 3*pi/4 -3*pi/8 -pi/2 0]
@@ -12,14 +12,14 @@ classdef Game < handle
         TbinDobot = transl(-.2,.2,0);
         TbinCobot = transl(.2,.2,0); %---------
     end
-    
+
     properties
         animator
         playerRed
         playerBlue
         gameBoard
     end
-    
+
     methods
         function self = Game()
             self.animator = Animator(self.dobotQ0,self.cobotQ0,self.squareSize, ...
@@ -32,10 +32,10 @@ classdef Game < handle
             %self.gameBoard = GameBoard();
             %self.startGame();
         end
-        
+
         % could have blackout interrupt delete this version of game and
-        % then start a new recovered one
-        
+        % then start a new recovered one 
+
         function startGame(self)
             self.gameBoard.run();
             gameWinner = 0;
@@ -55,7 +55,7 @@ classdef Game < handle
                         else
                             self.gameBoard.removeTask(1);
                         end
-                        
+
                         if self.playerBlue.hasWon()
                             gameWinner = 'blue';
                         end
@@ -71,14 +71,14 @@ classdef Game < handle
                         else
                             self.gameBoard.removeTask(1);
                         end
-                        if self.playerRed.hasWon()
+                        if self.playerBlue.hasWon()
                             gameWinner = 'red';
                         end
                     end
                 end
-                pause(0.1)
+            pause(0.1)
             end
-            display("The "+gameWinner+" team has won the game.")
+            display("The "+gameWinner+" team hasn won the game.")
         end
     end
 end
