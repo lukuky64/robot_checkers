@@ -67,6 +67,8 @@ classdef JOG_GUI < handle
 
             % Add e-stop button
             obj.guiHandles.estopButton = uicontrol('Style', 'pushbutton', 'String', 'E-STOP', 'Position', [130, 20, 60, 30], 'Callback', @(src, event) obj.estopButtonCallback(), 'BackgroundColor', 'green');
+
+            %obj.animateTable();
         end
 
         function estopButtonCallback(obj)
@@ -135,7 +137,7 @@ classdef JOG_GUI < handle
 
             robotNum_ = get(obj.guiHandles.robotSelect, 'Value');
             
-            speed_ = 30;
+            speed_ = 20;
 
             switch direction
                 case 'up'
@@ -177,6 +179,19 @@ classdef JOG_GUI < handle
             set(obj.guiHandles.backwardArrow, 'Enable', 'on');
         end
 
+        function animateTable(obj)
+            %offsets change the location of the object
+            xOffset = 0;
+            yOffset = .2;
+            zOffset = -1;
+            % enter name of ply file to be displayed
+            [f,v,data] = plyread('Scenery_complete.ply','tri'); 
+            % sets vertex colours in rgb values from ply file
+            vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
+            %plotting
+            plot on;
+            trisurf(f,v(:,1)+ xOffset,v(:,2)+ yOffset, v(:,3)+ zOffset,'FaceVertexCData',vertexColours,'Edgecolor','interp','EdgeLighting','flat');
+        end
 
         function updateSliders(obj)
             if isfield(obj.guiHandles, 'sliders')
@@ -298,7 +313,7 @@ classdef JOG_GUI < handle
             J = obj.robot_{robotNum_}.model.jacob0(obj.robot_{robotNum_}.model.getpos());
         
             % damping parameter
-            lambda = 0.008;
+            lambda = 0.02;
 
             % damped least squares
             Jinv_dls = inv((J'*J)+lambda^2*eye(nJoints))*J';
