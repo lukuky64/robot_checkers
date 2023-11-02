@@ -29,3 +29,14 @@ gb.stop()
 ```
 
 
+# Using physical doBot Magician:
+1. In ubuntu terminal:
+```Bash
+roslaunch dobot_magician_driver dobot_magician.launch
+```
+
+2. In matlab:
+```Bash
+rosinit
+```
+
