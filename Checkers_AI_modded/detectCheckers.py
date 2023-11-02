@@ -173,7 +173,10 @@ class detectCheckers:
 
     def capture(self):
         while True:
-            input("Press Enter to capture: ")
+            result = input("Press Enter to capture (type exit to exit): ")
+            if result == "exit":
+                sys.exit()
+
             self.process_image = True
 
             self.process_done.wait()  # Wait until the event is set in callback

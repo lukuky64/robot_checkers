@@ -22,7 +22,7 @@ def main():
     while True:
 
         while True:
-            result = int(input("Do you want to detect checkers with camera? (type 1 for yes): "))
+            result = int(input("Do you want to detect checkers with camera? (1-yes, 0-no): "))
             if result == 1 or result == 0:
                 break        
 
