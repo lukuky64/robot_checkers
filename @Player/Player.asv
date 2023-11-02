@@ -38,7 +38,6 @@ classdef Player < handle
             else
                 traj = self.mp.trajectoryMoveToSquare(movePositions(1,:));
             end
-
             % grip my piece:
             toggleGripAfterIndex = size(traj,1);
 
@@ -51,11 +50,6 @@ classdef Player < handle
             traji = self.mp.trajectorySquareToSquare( ...
                 movePositions(end-1,:), movePositions(end,:) );
             traj = [traj; traji];
-
-            % release my piece:
-            toggleGripAfterIndex = [toggleGripAfterIndex, ...
-                size(traj,1)];
-
             traj = [traj; self.mp.trajectorySquareToAbove(movePositions ...
                 (end,:))];
             
@@ -65,14 +59,8 @@ classdef Player < handle
                 for i=1:size(prisonerPositions,1)
                     traj = [traj; self.mp.trajectoryMoveToSquare( ...
                         prisonerPositions(i,:))];
-                    % grip my piece:
-                    toggleGripAfterIndex = [toggleGripAfterIndex, ...
-                        size(traj,1)];
                     traj = [traj; self.mp.trajectorySquareToBin( ...
                         prisonerPositions(i,:))];
-                    % release my piece:
-                    toggleGripAfterIndex = [toggleGripAfterIndex, ...
-                        size(traj,1)];
                     traj = [traj; self.mp.trajectoryMoveToAboveBin()];
                 end
             end

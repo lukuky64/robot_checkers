@@ -1,8 +1,8 @@
 clf
 g = Game();
 %%
-t1 = g.playerRed.processTaskTrajectory({[],[1,1; 5,5],[2,2; 4,4]});
-t2 = g.playerBlue.processTaskTrajectory({[],[7,7;7,3],[6,6; 6,4]});
+[t1,x1] = g.playerRed.processTaskTrajectory({[],[1,1; 5,5],[2,2; 4,4]});
+[t2,x2] = g.playerBlue.processTaskTrajectory({[],[7,7;7,3],[6,6; 6,4]});
 %%
 
 pause(4)

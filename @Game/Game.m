@@ -44,11 +44,11 @@ classdef Game < handle
                 if ~isempty(self.gameBoard.tasks_)
                     task = self.gameBoard.tasks_{1};
                     if (task{1} == 0) %&&  ~self.animator.blackout.activated % blue/cobot turn-------------------
-                        traj = self.playerBlue.processTaskTrajectory(task);
+                        [traj,toggleGripAfterIndex] = self.playerBlue.processTaskTrajectory(task);
                         if ~wasStopped
-                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,'robot','cobot');
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,toggleGripAfterIndex,'robot','cobot');
                         else
-                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(trajResidual,'robot','cobot');
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(trajResidual,toggleGripAfterIndex,'robot','cobot');
                         end
                         if ~(size(traj,1) == size(trajResidual,1)) % if: estop pressed during animatePlayerMove()
                             traj = trajResidual; % traj = rows of traj not yet animated
@@ -60,11 +60,11 @@ classdef Game < handle
                             gameWinner = 'blue';
                         end
                     elseif (task{1} == 1) % && ~self.animator.blackout.activated % red/dobot turn -------------------------
-                        traj = self.playerRed.processTaskTrajectory(task);
+                        [traj,toggleGripAfterIndex] = self.playerRed.processTaskTrajectory(task);
                         if ~wasStopped
-                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,'robot','dobot');
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(traj,toggleGripAfterIndex,'robot','dobot');
                         else
-                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(trajResidual,'robot','dobot');
+                            [trajResidual, wasStopped] = self.animator.animatePlayerMove(trajResidual,toggleGripAfterIndex,'robot','dobot');
                         end
                         if ~(size(traj,1) == size(trajResidual,1)) % if: estop pressed during animatePlayerMove()
                             traj = trajResidual; % traj = rows of traj not yet animated

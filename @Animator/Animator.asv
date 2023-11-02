@@ -106,9 +106,7 @@ classdef Animator < handle
                         return
                     end
                     self.cobot.animate(traj(i,:));
-                    if any(toggleGripAfterIndex == i)
-                        % TOGGLE GRIP ANIMATION
-                    end
+                    
                     pause(25^-1);
                 end
             elseif robotSelection == 'dobot'
@@ -121,9 +119,6 @@ classdef Animator < handle
                         return
                     end
                     self.dobot.animate(traj(i,:));
-                    if any(toggleGripAfterIndex == i)
-                        % TOGGLE GRIP ANIMATION
-                    end
                     pause(15^-1);
                 end
             end
