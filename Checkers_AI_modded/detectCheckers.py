@@ -5,6 +5,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import copy
 from threading import Event
+import sys
 
 class detectCheckers:
     # ------------------------------------------------------------------
@@ -17,7 +18,6 @@ class detectCheckers:
         self.bridge = CvBridge()
         self.locations = []
         self.process_image = False
-        self.callbackCount = 0
         self.image_sub = None
         self.previous_capture = None
         self.firstMove = True
@@ -34,10 +34,12 @@ class detectCheckers:
             else:
                 print("Topic '/usb_cam/image_raw' is not available. Exiting.")
                 rospy.signal_shutdown('Topic not found')
+                sys.exit() 
         
         except rospy.ROSException as e:
             print(f"An error occurred: {e}")
             rospy.signal_shutdown('An error occurred')
+            sys.exit() 
 
     
     def detect_change(self, current_capture):
@@ -68,15 +70,10 @@ class detectCheckers:
 
     def callback(self, data):
         if self.process_image:
-
-            # Attempt to identify gameboard 3 times before next user input
-            if self.callbackCount >= 3:
-                self.process_image = False
-                self.callbackCount = 0
-
             try:
                 cv_image = self.bridge.imgmsg_to_cv2(data, "rgb8")
             except CvBridgeError as e:
+                self.process_done.set()  # Signal that the processing is done
                 print(e)
                 return
 
@@ -156,7 +153,7 @@ class detectCheckers:
 
                     # visualise
                     cv2.imshow('Checkers Located', cv_image)
-                    cv2.waitKey(1000)  # Wait for 3000 milliseconds (3 seconds)
+                    cv2.waitKey(1500)  # Wait for 3000 milliseconds (3 seconds)
                     cv2.destroyAllWindows()  # Close all OpenCV windows
                     
                     # convert a unique list, removing duplicates
@@ -169,10 +166,8 @@ class detectCheckers:
 
                     
                     self.process_image = False
-                    self.callbackCount = 0
                     self.firstMove = False
-            
-            self.callbackCount += 1
+
             self.process_done.set()  # Signal that the processing is done
 
 

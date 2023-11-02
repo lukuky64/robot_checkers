@@ -53,6 +53,10 @@ BLACK    = (  0,   0,   0)
 GOLD     = (255, 215,   0)
 HIGH     = (160, 190, 255)
 
+# MODES
+SCREEN = 1
+CAMERA = 0
+
 ##DIRECTIONS##
 NORTHWEST = "northwest"
 NORTHEAST = "northeast"
@@ -64,11 +68,12 @@ class Game:
 	The main game control.
 	"""
 
-	def __init__(self, loop_mode):
+	def __init__(self, loop_mode, game_mode):
 		self.graphics = Graphics()
 		self.board = Board()
 		self.endit = False
 		self.turn = BLUE
+		self.mode = game_mode
 		self.selected_piece = None # a board location.
 		self.hop = False
 		self.loop_mode = loop_mode
@@ -87,32 +92,72 @@ class Game:
 		#
 
 		if self.turn == BLUE:
-			# !!! Newly added functionality for checker detection input
-			# ---------------------------------------------------------------------------------------------------------------------
-			move_made = False
-			while not move_made:
-				from_to = self.detect_inputChecker.capture()
-				start_x, start_y = from_to[0]
-				end_x, end_y = from_to[1]
+			if self.mode == CAMERA:
+				# !!! Newly added functionality for checker detection input
+				# ---------------------------------------------------------------------------------------------------------------------
+				move_made = False
+				while not move_made:
+					from_to = self.detect_inputChecker.capture()
+					start_x, start_y = from_to[0]
+					end_x, end_y = from_to[1]
 
-				self.selected_piece = (start_x, start_y)
-				self.mouse_pos = (end_x, end_y)
+					self.selected_piece = (start_x, start_y)
+					self.mouse_pos = (end_x, end_y)
 
-				if self.selected_piece is not None:
+					if self.selected_piece is not None:
+						self.selected_legal_moves = self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop)
+						if self.mouse_pos in self.selected_legal_moves:
+							self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
+							if self.mouse_pos not in self.board.adjacent(self.selected_piece[0], self.selected_piece[1]):
+								self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, 
+														self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
+								self.hop = True
+								self.selected_piece = self.mouse_pos
+
+							self.end_turn()
+							move_made = True
+						else:
+							print("Illegal move. Try again.")
+			
+			elif self.mode == SCREEN:
+				mouse_pos = tuple(map(int, pygame.mouse.get_pos()))
+				self.mouse_pos = tuple(map(int, self.graphics.board_coords(mouse_pos[0], mouse_pos[1]))) # what square is the mouse in?
+
+				if self.selected_piece != None:
 					self.selected_legal_moves = self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop)
-					if self.mouse_pos in self.selected_legal_moves:
-						self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
-						if self.mouse_pos not in self.board.adjacent(self.selected_piece[0], self.selected_piece[1]):
-							self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, 
-													self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
-							self.hop = True
-							self.selected_piece = self.mouse_pos
 
-						self.end_turn()
-						move_made = True
-					else:
-						print("Illegal move. Try again.")
-			# ---------------------------------------------------------------------------------------------------------------------
+				for event in pygame.event.get():
+
+					if event.type == QUIT:
+						self.terminate_game()
+
+					if event.type == MOUSEBUTTONDOWN:
+						if self.hop == False:
+							if self.board.location(self.mouse_pos[0], self.mouse_pos[1]).occupant != None and self.board.location(self.mouse_pos[0], self.mouse_pos[1]).occupant.color == self.turn:
+								self.selected_piece = self.mouse_pos
+
+							elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece[0], self.selected_piece[1]):
+
+								self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
+
+								if self.mouse_pos not in self.board.adjacent(self.selected_piece[0], self.selected_piece[1]):
+									self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
+									self.hop = True
+									self.selected_piece = self.mouse_pos
+								else:
+									self.end_turn()
+
+						if self.hop == True:
+							if self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece[0], self.selected_piece[1], self.hop):
+								self.board.move_piece(self.selected_piece[0], self.selected_piece[1], self.mouse_pos[0], self.mouse_pos[1])
+								self.board.remove_piece(self.selected_piece[0] + (self.mouse_pos[0] - self.selected_piece[0]) // 2, self.selected_piece[1] + (self.mouse_pos[1] - self.selected_piece[1]) // 2)
+
+							if self.board.legal_moves(self.mouse_pos[0], self.mouse_pos[1], self.hop) == []:
+									self.end_turn()
+
+							else:
+								self.selected_piece = self.mouse_pos
+		# ---------------------------------------------------------------------------------------------------------------------
 
 		elif self.turn == RED:
 			mouse_pos = tuple(map(int, pygame.mouse.get_pos()))
@@ -194,7 +239,7 @@ class Game:
 			else:
 				print('BLUE WINS!')
 				self.graphics.draw_message("BLUE WINS!")
-			print(self.turn)
+
 			if(self.loop_mode):
 				self.endit = True
 			else:
@@ -319,7 +364,7 @@ class Graphics:
 		"""
 		Draws message to the screen.
 		"""
-		print("in here")
+		# print("in here")
 		self.message = True
 		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
 		self.text_surface_obj = self.font_obj.render(message, True, HIGH, BLACK)
