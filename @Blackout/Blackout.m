@@ -25,7 +25,7 @@ classdef Blackout < handle
                 rosinit;
             end
             
-            obj.subscriber = rossubscriber('/eStop_state', 'std_msgs/Int32', @(src, msg) obj.callback(src, msg));
+            obj.subscriber = rossubscriber('/eStop_state', 'std_msgs/UInt8', @(src, msg) obj.callback(src, msg));
         end
 
         % change state of emergency variable based on ros node data
