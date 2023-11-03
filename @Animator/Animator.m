@@ -13,6 +13,7 @@ classdef Animator < handle
         blackout = Blackout()
         suctionTextHandle
         suctionIsOn = 0
+        looseChecker
     end
 
     methods
@@ -100,9 +101,14 @@ classdef Animator < handle
 
             % animate robot:
             if robotSelection == 'cobot'
+                first = 1;
                 for i=1:size(traj,1)
                     % check if estopped pressed:
+<<<<<<< HEAD
                     if self.blackout.activated() 
+=======
+                    if self.blackout.activated()
+>>>>>>> d419985a3a6e5a002cbb4ab99df5a8f547722e19
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -117,15 +123,28 @@ classdef Animator < handle
                         if self.suctionIsOn
                             self.suctionTextHandle = text(-.5,0,.4, ...
                                 "Cobot is sucking.",'FontSize', ...
-                                20,'Color','g');
+                                12,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
                     end
 
+                    % animate checker on end effector:
+                    if self.suctionIsOn && first == 1
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker('blue',T);
+                        first = 0;
+                    elseif self.suctionIsOn
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker.moveMe(T);
+                    else
+                        self.looseChecker.deleteMe;
+                    end
+
                     pause(25^-1);
                 end
             elseif robotSelection == 'dobot'
+                first = 1;
                 for i=1:size(traj,1)
                     % check if estopped pressed:
                     if self.blackout.activated()
@@ -143,10 +162,22 @@ classdef Animator < handle
                         if self.suctionIsOn
                             self.suctionTextHandle = text(-.5,0,.4, ...
                                 "Dobot is sucking.",'FontSize', ...
-                                20,'Color','g');
+                                12,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
+                    end
+
+                    % animate checker on end effector:
+                    if self.suctionIsOn && first == 1
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker('red',T);
+                        first = 0;
+                    elseif self.suctionIsOn
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker.moveMe(T);
+                    else
+                        self.looseChecker.deleteMe;
                     end
 
                     pause(15^-1);

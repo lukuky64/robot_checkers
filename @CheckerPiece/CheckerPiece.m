@@ -30,5 +30,11 @@ classdef CheckerPiece < handle
             self.base = T*self.Toffset;
             self.plotMe();
         end
+
+        function deleteMe(self)
+            if ishandle(self.plotHandle)
+                delete(self.plotHandle);
+            end
+        end
      end 
 end
