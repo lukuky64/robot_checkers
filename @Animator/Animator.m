@@ -106,6 +106,7 @@ classdef Animator < handle
                 for i=1:size(traj,1)
                     % check if estopped pressed:
                     if self.blackout.activated()
+
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -135,10 +136,15 @@ classdef Animator < handle
                     elseif self.suctionIsOn
                         T = self.cobot.fkine(traj(i,:));
                         self.looseChecker.moveMe(T);
+<<<<<<< HEAD
                          self.looseCheckerExists = 1;
                     elseif self.looseCheckerExists
                         self.looseChecker.deleteMe();
                         self.looseCheckerExists = 0;
+=======
+                    else
+                        self.looseChecker.deleteMe();
+>>>>>>> 0a0a2e8fa8484010db587f81872b60395303882c
                     end
 
                     pause(25^-1);
@@ -177,10 +183,15 @@ classdef Animator < handle
                     elseif self.suctionIsOn
                         T = self.dobot.fkine(traj(i,:));
                         self.looseChecker.moveMe(T);
+<<<<<<< HEAD
                          self.looseCheckerExists = 1;
                     elseif self.looseCheckerExists
                         self.looseChecker.deleteMe();
                         self.looseCheckerExists = 0;
+=======
+                    else
+                        self.looseChecker.deleteMe();
+>>>>>>> 0a0a2e8fa8484010db587f81872b60395303882c
                     end
 
                     pause(15^-1);
