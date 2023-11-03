@@ -18,6 +18,7 @@ while true
         trajectories{2,i} = 0;
     end
     if status == "exit"
+        trajectories{2,i} = 0;
         disp(trajectories);
         break;
     end
