@@ -90,7 +90,7 @@ classdef Dobot
     
         end
 
-        function[] = manual_Record()
+        function trajectories = Record()
                         %% To record
             jointStateSubscriber = rossubscriber('/dobot_magician/joint_states'); % Create a ROS Subscriber to the topic joint_states
             pause(2); % Allow some time for a message to appear
@@ -138,6 +138,32 @@ classdef Dobot
                     trajectories{2,i} = 0;
                 end
         end
+        function[] = run_Record(data)
+                     %%
+
+            trajectories = data;
+            [targetJointTrajPub,targetJointTrajMsg] = rospublisher('/dobot_magician/target_joint_states');
+            trajectoryPoint = rosmessage("trajectory_msgs/JointTrajectoryPoint");
+            [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
+            
+            pause(3);
+            for i = 1:length(trajectories)
+                disp(['trajectory: ', num2str(i)]);
+                jointTarget = trajectories{1,i};
+                
+            
+                trajectoryPoint.Positions = jointTarget;
+                targetJointTrajMsg.Points = trajectoryPoint;
+                send(targetJointTrajPub,targetJointTrajMsg);
+                pause(0.5);
+                % suction change happens at end of movement
+                toolStateMsg.Data = [trajectories{2,i}]; % Send 1 for on and 0 for off
+                
+                send(toolStatePub,toolStateMsg);
+                pause(1);
+            end
+        end
+
         function[] = view_Position()
                         %% run to view a certain position
             [targetJointTrajPub,targetJointTrajMsg] = rospublisher('/dobot_magician/target_joint_states');

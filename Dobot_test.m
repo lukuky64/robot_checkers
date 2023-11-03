@@ -97,5 +97,5 @@ end
 %%
 % Turn on the tool
 [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
-toolStateMsg.Data = [0]; % Send 1 for on and 0 for off 
+toolStateMsg.Data = [1]; % Send 1 for on and 0 for off 
 send(toolStatePub,toolStateMsg);
