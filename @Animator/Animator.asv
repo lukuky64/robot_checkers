@@ -13,6 +13,7 @@ classdef Animator < handle
         blackout = Blackout()
         suctionTextHandle
         suctionIsOn = 0
+        looseChecker
     end
 
     methods
@@ -100,9 +101,10 @@ classdef Animator < handle
 
             % animate robot:
             if robotSelection == 'cobot'
+                first = 1;
                 for i=1:size(traj,1)
                     % check if estopped pressed:
-                    if self.blackout.activated() ---------------------
+                    if self.blackout.activated()
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -115,12 +117,24 @@ classdef Animator < handle
                         % TOGGLE EE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
                         if self.suctionIsOn
-                            self.suctionTextHandle = text(-2,0,.4, ...
-                                "Activate Cobot suck.",'FontSize', ...
-                                20,'Color','g');
+                            self.suctionTextHandle = text(-.5,0,.4, ...
+                                "Cobot is sucking.",'FontSize', ...
+                                12,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
+                    end
+
+                    % animate checker on end effector:
+                    if self.suctionIsOn && first == 1
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker('blue',T);
+                        first = 0;
+                    elseif self.suctionIsOn
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker.moveMe(T);
+                    else
+                        self.looseChecker.deleteMe;
                     end
 
                     pause(25^-1);
@@ -128,7 +142,7 @@ classdef Animator < handle
             elseif robotSelection == 'dobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed:
-                    if self.blackout.activated()-----------------------
+                    if self.blackout.activated()
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -141,9 +155,9 @@ classdef Animator < handle
                         % TOGGLE EE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
                         if self.suctionIsOn
-                            self.suctionTextHandle = text(-2,0,.4, ...
-                                "Activate Dobot suck.",'FontSize', ...
-                                20,'Color','g');
+                            self.suctionTextHandle = text(-.5,0,.4, ...
+                                "Dobot is sucking.",'FontSize', ...
+                                12,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end

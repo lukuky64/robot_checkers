@@ -79,12 +79,11 @@ classdef Game < handle
                 end
                 pause(0.1)
             end
-            if gameWinner == 'blue'
+            if gameWinner == 'red'
                 text(0,0,0, ...
                     "Red player won.",'FontSize', ...
                     50,'Color','b');
-            elseif 
-                gameWinner == 'red'
+            elseif gameWinner == 'blue'
                 text(0,0,0, ...
                     "Blue player won.",'FontSize', ...
                     50,'Color','r');
