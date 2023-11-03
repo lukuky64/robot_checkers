@@ -5,6 +5,8 @@ function[]= dobot_Run(data)
     %occurs at the end of each trajectory move so should be included in the
     %same column as the trajectory that you want it to happen after. for
     %example:
+
+    %q1=[n;n;n;n]
     
     % data{q1, q2, q3, q4;
     %       1,  0,  0,  1};
