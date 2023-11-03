@@ -6,5 +6,5 @@ g = Game();
 %%
 
 pause(4)
-g.animator.animatePlayerMove(t1,'robot','dobot');
-g.animator.animatePlayerMove(t2,'robot','cobot');
+g.animator.animatePlayerMove(t1,x1,'robot','dobot');
+g.animator.animatePlayerMove(t2,x2,'robot','cobot');

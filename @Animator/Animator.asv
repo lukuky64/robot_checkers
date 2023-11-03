@@ -109,20 +109,13 @@ classdef Animator < handle
                         return
                     end
                     self.cobot.animate(traj(i,:));
-
-                    % grip/release end-effector:
                     if any(toggleGripAfterIndex == i)
-                        % TOGGLE EE ANIMATION:
+                        % TOGGLE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
-                        if self.suctionIsOn
-                            self.suctionTextHandle = text(-1,-.5,.4, ...
-                                'Suction toggled.','FontSize', ...
-                                20,'Color','r');
-                        else
-                            delete(self.suctionTextHandle)
-                        end
+                        text(-1,-.5,.4,'Suction toggled.','FontSize', ...
+                            20,'Color','r')
+                        
                     end
-
                     pause(25^-1);
                 end
             elseif robotSelection == 'dobot'
@@ -135,20 +128,9 @@ classdef Animator < handle
                         return
                     end
                     self.dobot.animate(traj(i,:));
-                    
-                    % grip/release end-effector:
                     if any(toggleGripAfterIndex == i)
-                        % TOGGLE EE ANIMATION:
-                        self.suctionIsOn = xor(self.suctionIsOn,1);
-                        if self.suctionIsOn
-                            self.suctionTextHandle = text(-1,-.5,.4, ...
-                                'Suction toggled.','FontSize', ...
-                                20,'Color','r');
-                        else
-                            delete(self.suctionTextHandle)
-                        end
+                        % TOGGLE GRIP ANIMATION
                     end
-                    
                     pause(15^-1);
                 end
             end
