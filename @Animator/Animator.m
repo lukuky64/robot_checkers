@@ -14,6 +14,7 @@ classdef Animator < handle
         suctionTextHandle
         suctionIsOn = 0
         looseChecker
+        looseCheckerExists
     end
 
     methods
@@ -129,12 +130,15 @@ classdef Animator < handle
                     if self.suctionIsOn && first == 1
                         T = self.cobot.fkine(traj(i,:));
                         self.looseChecker('blue',T);
+                        self.looseCheckerExists = 1;
                         first = 0;
                     elseif self.suctionIsOn
                         T = self.cobot.fkine(traj(i,:));
                         self.looseChecker.moveMe(T);
-                    else
-                        self.looseChecker.deleteMe;
+                         self.looseCheckerExists = 1;
+                    elseif self.looseCheckerExists
+                        self.looseChecker.deleteMe();
+                        self.looseCheckerExists = 0;
                     end
 
                     pause(25^-1);
@@ -166,14 +170,17 @@ classdef Animator < handle
 
                     % animate checker on end effector:
                     if self.suctionIsOn && first == 1
-                        T = self.cobot.fkine(traj(i,:));
+                        T = self.dobot.fkine(traj(i,:));
                         self.looseChecker('red',T);
+                        self.looseCheckerExists = 1;
                         first = 0;
                     elseif self.suctionIsOn
-                        T = self.cobot.fkine(traj(i,:));
+                        T = self.dobot.fkine(traj(i,:));
                         self.looseChecker.moveMe(T);
-                    else
-                        self.looseChecker.deleteMe;
+                         self.looseCheckerExists = 1;
+                    elseif self.looseCheckerExists
+                        self.looseChecker.deleteMe();
+                        self.looseCheckerExists = 0;
                     end
 
                     pause(15^-1);

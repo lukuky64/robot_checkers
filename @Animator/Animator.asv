@@ -134,12 +134,13 @@ classdef Animator < handle
                         T = self.cobot.fkine(traj(i,:));
                         self.looseChecker.moveMe(T);
                     else
-                        self.looseChecker.deleteMe;
+                        self.looseChecker.deleteMe();
                     end
 
                     pause(25^-1);
                 end
             elseif robotSelection == 'dobot'
+                first = 1;
                 for i=1:size(traj,1)
                     % check if estopped pressed:
                     if self.blackout.activated()
@@ -161,6 +162,18 @@ classdef Animator < handle
                         else
                             delete(self.suctionTextHandle)
                         end
+                    end
+
+                    % animate checker on end effector:
+                    if self.suctionIsOn && first == 1
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker('red',T);
+                        first = 0;
+                    elseif self.suctionIsOn
+                        T = self.cobot.fkine(traj(i,:));
+                        self.looseChecker.moveMe(T);
+                    else
+                        self.looseChecker.deleteMe;
                     end
 
                     pause(15^-1);
