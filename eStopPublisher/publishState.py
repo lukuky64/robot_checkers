@@ -18,7 +18,7 @@ from std_msgs.msg import UInt8, Int32
 
 
 def main():
-    port = "/dev/ttyUSB0"  # "/dev/ttyUSB0" "/dev/ttyACM0"
+    port = "/dev/ttyUSB1"  # "/dev/ttyUSB0" "/dev/ttyACM0"
 
     # Wait for Arduino to be connected
     while not os.path.exists(port):
@@ -33,7 +33,7 @@ def main():
 
     # Create ROS publisher for real DoBot Magician
     pub_DoBot = rospy.Publisher(
-        "/dobot_magician/target_safety_status", Int32, queue_size=10, latch=True
+        "/dobot_magician/target_safety_status", UInt8, queue_size=10, latch=True
     )
 
     # Initialise serial port with baudrate 9600

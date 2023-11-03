@@ -70,7 +70,8 @@ i = input("enter step you want to view: ");
 
 %% load existing trajectores
 load("dobot_traj_examples.mat");
-%%
+
+%% Run through trajectories
 [targetJointTrajPub,targetJointTrajMsg] = rospublisher('/dobot_magician/target_joint_states');
 trajectoryPoint = rosmessage("trajectory_msgs/JointTrajectoryPoint");
 [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
