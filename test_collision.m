@@ -8,7 +8,7 @@ prisms = {
     [0.4, -1.2,  -0.5], [0.401,  1.2,   0.5];  % wall
     [-0.2, -0.5,  -0.002], [0.4,    0.5, -0.001]}; % ground plane, has to be slightly below 0 to not trigger from the base
 
-[vertex, faces, faceNormals] = checkCollision.createCollisionPrisms(prisms);
+[vertex, faces, faceNormals] = checkCollision.createCollisionPrisms(prisms, 0.01);
 
 %% Animate trajectory
 q0 = robot.model.getpos;

@@ -98,13 +98,13 @@ classdef checkCollision < handle
             end
         end
 
-        function [vertex, faces, faceNormals] = createCollisionPrisms(prisms)
+        function [vertex, faces, faceNormals] = createCollisionPrisms(prisms, alpha)
             % Initialize plotOptions as an empty struct
             plotOptions = struct;
             plotOptions.plotFaces = true;
             plotOptions.FaceColor = [0.8, 0.8, 0.8];
             plotOptions.EdgeColor = 'k';
-            plotOptions.FaceAlpha = 0.01;
+            plotOptions.FaceAlpha = alpha;
         
             vertex = [];
             faces = [];
@@ -158,7 +158,7 @@ classdef checkCollision < handle
             end
             %% If plot verticies
             if isfield(plotOptions,'plotVerts') && plotOptions.plotVerts
-                for i=1:size(vertex,1);
+                for i=1:size(vertex,1)
                     plot3(vertex(i,1),vertex(i,2),vertex(i,3),'r*');
                     text(vertex(i,1),vertex(i,2),vertex(i,3),num2str(i));
                 end
