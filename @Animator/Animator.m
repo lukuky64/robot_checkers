@@ -102,7 +102,7 @@ classdef Animator < handle
             if robotSelection == 'cobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed:
-                    if self.blackout.activated() ---------------------
+                    if self.blackout.activated() 
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
