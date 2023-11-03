@@ -10,9 +10,9 @@ classdef Animator < handle
         board
         checkerPieces = {}
         guiHandles = struct()
-        %blackout = Blackout()
+        blackout = Blackout()
         suctionTextHandle
-        suctionIsOn
+        suctionIsOn = 0
     end
 
     methods
@@ -27,7 +27,7 @@ classdef Animator < handle
             self.animateTable();
             hold on
             self.animateFloor();
-            self.dobotRobotBaseClass = DobotMagician(rpy2tr(0,0,pi/2));
+            self.dobotRobotBaseClass = DobotMagician_succ(rpy2tr(0,0,pi/2));
             self.dobot = self.dobotRobotBaseClass.model;            
             cobotBaseBoardGap = .14;
             TcobotBase = transl(0,squareSize*8+Tboard(2,4)+ ...
@@ -80,12 +80,12 @@ classdef Animator < handle
 
             self.dobot.animate(dobotQ0);
             self.cobot.animate(cobotQ0);
-            axis([-.8 .8 -.6 1 -1 .4])
+            axis([-1 1 -.8 1.2 -1 .9])
         end
 
         function [traj,wasStopped] = animatePlayerMove(self,traj,toggleGripAfterIndex,varargin)
             % parse option of dobot or cobot:
-            %robotSelection;
+            % robotSelection;
             for i = 1:2:length(varargin)
                 argin = varargin;
                 option = argin{i};
@@ -102,7 +102,7 @@ classdef Animator < handle
             if robotSelection == 'cobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed:
-                    if false % self.blackout.activated() ---------------------
+                    if self.blackout.activated() ---------------------
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -115,9 +115,9 @@ classdef Animator < handle
                         % TOGGLE EE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
                         if self.suctionIsOn
-                            self.suctionTextHandle = text(-1,-.5,.4, ...
-                                'Suction toggled.','FontSize', ...
-                                20,'Color','r');
+                            self.suctionTextHandle = text(-2,0,.4, ...
+                                "Activate Cobot suck.",'FontSize', ...
+                                20,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
@@ -128,7 +128,7 @@ classdef Animator < handle
             elseif robotSelection == 'dobot'
                 for i=1:size(traj,1)
                     % check if estopped pressed:
-                    if false % self.blackout.activated()-----------------------
+                    if self.blackout.activated()
                         % return residual trajectory:
                         traj = traj(i:end,:);
                         wasStopped = 1;
@@ -141,14 +141,14 @@ classdef Animator < handle
                         % TOGGLE EE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
                         if self.suctionIsOn
-                            self.suctionTextHandle = text(-1,-.5,.4, ...
-                                'Suction toggled.','FontSize', ...
-                                20,'Color','r');
+                            self.suctionTextHandle = text(-2,0,.4, ...
+                                "Activate Dobot suck.",'FontSize', ...
+                                20,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
                     end
-                    
+
                     pause(15^-1);
                 end
             end
@@ -161,7 +161,7 @@ classdef Animator < handle
             yOffset = .2;
             zOffset = -1;
             % enter name of ply file to be displayed
-            [f,v,data] = plyread('Scenery.ply','tri'); 
+            [f,v,data] = plyread('Scenery_complete.PLY','tri'); 
             % sets vertex colours in rgb values from ply file
             vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
             %plotting
