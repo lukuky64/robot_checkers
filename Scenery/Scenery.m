@@ -13,7 +13,7 @@ zOffset = 0;
 
 
 
-[f,v,data] = plyread('Scenery.ply','tri'); % enter name of ply file to be displayed
+[f,v,data] = plyread('Scenery_complete.ply','tri'); % enter name of ply file to be displayed
 
 % sets vertex colours in rgb values from ply file
 vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
