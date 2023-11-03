@@ -1,0 +1,13 @@
+robot = Dobo
+
+%% Define line
+point1OnLine = [1, 1, 1];
+point2OnLine = [1, 1, -1];
+
+line = {point1OnLine, point2OnLine}
+
+curtain = LightCurtain()
+
+%%
+result = curtain.CheckCollision(line);
+disp(result);

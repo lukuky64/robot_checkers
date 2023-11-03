@@ -1,4 +1,13 @@
-function[]= dobot_Run(data)
+classdef Dobot
+    %UNTITLED Summary of this class goes here
+    %   Detailed explanation goes here
+
+    properties
+        
+    end
+
+    methods(Static)
+        function[]= Run(data)
 
     %this function accepts a 2d data matrix that contains joint trajectories
     %in the first row and suction toggle in the 2nd row. Change in suction
@@ -6,7 +15,6 @@ function[]= dobot_Run(data)
     %same column as the trajectory that you want it to happen after. for
     %example:
 
-    %q1=[n;n;n;n]
     % q is a 4x1 matrix
     
     % data{q1, q2, q3, q4;
@@ -60,9 +68,9 @@ function[]= dobot_Run(data)
     
         pause(1); % change this to make robot move faster
     end
-end
+  end
 
-function[]=dobot_Camera_Pos()
+        function[]=camera_Pose()
 
          % setup ROS publisher
     [targetJointTrajPub,targetJointTrajMsg] = rospublisher('/dobot_magician/target_joint_states');
@@ -70,8 +78,9 @@ function[]=dobot_Camera_Pos()
     [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
     
     pause(3); %wait for message to send
-
-         jointTarget = load("camera_Pos.mat");
+         t = load("camera_Pos.mat");
+         jointTarget = t.trajectories{1,1};
+         
      %% move robot
         trajectoryPoint.Positions = jointTarget;
         targetJointTrajMsg.Points = trajectoryPoint;
@@ -79,4 +88,36 @@ function[]=dobot_Camera_Pos()
     
         pause(0.5); % delay to allow robot to move before changing suction state
     
+        end
+
+        function[] = manual_Record()
+                        %% To record
+            jointStateSubscriber = rossubscriber('/dobot_magician/joint_states'); % Create a ROS Subscriber to the topic joint_states
+            pause(2); % Allow some time for a message to appear
+            
+            trajectories = {};
+            i = 0;
+            
+            while true
+                i = i+1;
+                status = input("capture...", 's');
+                currentJointState = jointStateSubscriber.LatestMessage.Position; % Get the latest message
+                disp(currentJointState);
+                trajectories{1,i} = currentJointState;
+                if status == "s"
+                    trajectories{2,i} = 1;
+                end
+                if status == "r"
+                    trajectories{2,i} = 0;
+                end
+                if status == "exit"
+                    trajectories{2,i} = 0;
+                    disp(trajectories);
+                    break;
+                end
+            end
+
+        end
+
+    end
 end

@@ -32,7 +32,7 @@ classdef JOG_GUI < handle
                 [-0.15, -0.15,  0  ], [0.15, 0.15, 0.05];  % checkerboard
                 [-0.6, -0.6, -0.002], [0.6, 0.6, -0.001]}; % ground plane, has to be slightly below 0 to not trigger from the base
             
-            [obj.vertex, obj.faces, obj.faceNormals] = checkCollision.createCollisionPrisms(prisms);
+            [obj.vertex, obj.faces, obj.faceNormals] = checkCollision.createCollisionPrisms(prisms, 0.01);
         end
 
         function initialise(obj)
