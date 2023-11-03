@@ -12,7 +12,8 @@ classdef Animator < handle
         guiHandles = struct()
         %blackout = Blackout()
         suctionTextHandle
-        suctionIsOn
+        suctionIsOn = 0
+        physicalDobot
     end
 
     methods
@@ -20,6 +21,7 @@ classdef Animator < handle
                 Tboard)
             self.setupEnvironment(dobotQ0,cobotQ0,squareSize,boardHeight, ...
                 Tboard);
+            self.PhysicalDobot = Dobot()
         end
 
         function setupEnvironment(self,dobotQ0,cobotQ0,squareSize, ...
@@ -115,9 +117,9 @@ classdef Animator < handle
                         % TOGGLE EE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
                         if self.suctionIsOn
-                            self.suctionTextHandle = text(-1,-.5,.4, ...
-                                'Suction toggled.','FontSize', ...
-                                20,'Color','r');
+                            self.suctionTextHandle = text(-2,-.5,.4, ...
+                                "Dobot's suction toggled.",'FontSize', ...
+                                20,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
@@ -141,14 +143,14 @@ classdef Animator < handle
                         % TOGGLE EE ANIMATION:
                         self.suctionIsOn = xor(self.suctionIsOn,1);
                         if self.suctionIsOn
-                            self.suctionTextHandle = text(-1,-.5,.4, ...
-                                'Suction toggled.','FontSize', ...
-                                20,'Color','r');
+                            self.suctionTextHandle = text(-2,-.5,.4, ...
+                                "Dobot's suction toggled.",'FontSize', ...
+                                20,'Color','g');
                         else
                             delete(self.suctionTextHandle)
                         end
                     end
-                    
+
                     pause(15^-1);
                 end
             end
