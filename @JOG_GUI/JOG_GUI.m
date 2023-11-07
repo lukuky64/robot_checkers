@@ -1,5 +1,6 @@
-% To Do:
-% Add cartesian (tc = ctraj(T0, T1, n)) control also
+% This class creates a GUI for controlling numerous robots in the same space
+% using joint angle control or cartesian control. It also has an e-stop button
+% and collision detection to stop animation of all robots in the space.
 
 classdef JOG_GUI < handle
 
@@ -46,6 +47,7 @@ classdef JOG_GUI < handle
             end
         end
 
+        % Create the initial GUI elements
         function createGUI(obj)
             obj.guiHandles.fig = gcf;
             set(obj.guiHandles.fig, 'Position', [600, 200, 800, 450]);
@@ -67,6 +69,9 @@ classdef JOG_GUI < handle
 
             % Add e-stop button
             obj.guiHandles.estopButton = uicontrol('Style', 'pushbutton', 'String', 'E-STOP', 'Position', [130, 20, 60, 30], 'Callback', @(src, event) obj.estopButtonCallback(), 'BackgroundColor', 'green');
+            
+            %hold on;
+            %obj.animateTable();
         end
 
         function estopButtonCallback(obj)
@@ -81,9 +86,11 @@ classdef JOG_GUI < handle
             end
         end
 
+        % switching between joint control mode and cartesian control mode
         function switchMode(obj)
             selectedMode = obj.guiHandles.modePanel.SelectedObject.String;
             
+            % If cartesian control objects exist, then delete them 
             if isfield(obj.guiHandles, 'upArrow')
                 % Delete existing cartesian UI elements
                 delete(obj.guiHandles.upArrow);
@@ -94,12 +101,14 @@ classdef JOG_GUI < handle
                 delete(obj.guiHandles.backwardArrow);
             end
 
+            % If joint control objects exist, then delete them 
             if isfield(obj.guiHandles, 'sliders')
                 % Delete existing joint UI elements
                 delete(obj.guiHandles.sliders);
                 delete(obj.guiHandles.labels);
             end
 
+            % creating new UI elements based on the selected mode
             if strcmp(selectedMode, 'Joint control')
                 set(obj.guiHandles.goButton, 'Enable', 'on');
                 set(obj.guiHandles.liveCheckbox, 'Enable', 'on');
@@ -125,7 +134,7 @@ classdef JOG_GUI < handle
         end
 
         function moveCartesian(obj, direction, ~, ~)
-            % Disable the buttons
+            % disallow button presses while robot reaches new state by disabling buttons
             set(obj.guiHandles.upArrow, 'Enable', 'off');
             set(obj.guiHandles.downArrow, 'Enable', 'off');
             set(obj.guiHandles.leftArrow, 'Enable', 'off');
@@ -133,9 +142,10 @@ classdef JOG_GUI < handle
             set(obj.guiHandles.forwardArrow, 'Enable', 'off');
             set(obj.guiHandles.backwardArrow, 'Enable', 'off');
 
+            % find the robot that is being controlled
             robotNum_ = get(obj.guiHandles.robotSelect, 'Value');
             
-            speed_ = 30;
+            speed_ = 20;
 
             switch direction
                 case 'up'
@@ -177,6 +187,19 @@ classdef JOG_GUI < handle
             set(obj.guiHandles.backwardArrow, 'Enable', 'on');
         end
 
+        function animateTable(obj)
+            %offsets change the location of the object
+            xOffset = 0;
+            yOffset = .2;
+            zOffset = -1;
+            % enter name of ply file to be displayed
+            [f,v,data] = plyread('Scenery_complete.ply','tri'); 
+            % sets vertex colours in rgb values from ply file
+            vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue]/255;
+            %plotting
+            plot on;
+            trisurf(f,v(:,1)+ xOffset,v(:,2)+ yOffset, v(:,3)+ zOffset,'FaceVertexCData',vertexColours,'Edgecolor','interp','EdgeLighting','flat');
+        end
 
         function updateSliders(obj)
             if isfield(obj.guiHandles, 'sliders')
@@ -287,8 +310,10 @@ classdef JOG_GUI < handle
         end
 
 
+        % RRMC for cartesian control, also implements damped-least-squares for singularity avoidance
         function nextQ = RRMCNextQ(obj, eeVel, robotNum_)
 
+            % for this case, we only care about x,y,z translations and not rotations so last three values are zero
             eeVel = [eeVel, 0, 0, 0]';
             qlim = obj.robot_{robotNum_}.model.qlim;
             nJoints = size(qlim, 1);
@@ -298,7 +323,7 @@ classdef JOG_GUI < handle
             J = obj.robot_{robotNum_}.model.jacob0(obj.robot_{robotNum_}.model.getpos());
         
             % damping parameter
-            lambda = 0.008;
+            lambda = 0.02;
 
             % damped least squares
             Jinv_dls = inv((J'*J)+lambda^2*eye(nJoints))*J';
@@ -306,7 +331,7 @@ classdef JOG_GUI < handle
             dq = Jinv_dls*eeVel;
             nextQ = q + dq'*dt;
 
-            % Check if any joint is out of its bounds
+            % Check if any joint is out of its bounds and don't move further if so
             out_bounds = any(nextQ > qlim(:, 2)') || any(nextQ < qlim(:, 1)');
             
             if out_bounds

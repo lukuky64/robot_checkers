@@ -5,9 +5,9 @@ https://github.com/Hsankesara/Draughts-AI
 ```
 
 Modifications:
-Small modifications have been made to the checkers.py file using new
-python classes to publish the current gameboard state to a ROS node. 
-This gameboard state is an array containing the location and occupancy
+Small modifications have been made to the game to publish the current gameboard state to a ROS node.
+An additional file is created to detect checkers using image segmentation and interacts with the main game
+if enabled through user input. This gameboard state is an array containing the location and occupancy
 colour of each checker on the board.
 
 
@@ -38,8 +38,13 @@ roslaunch usb_cam usb_cam-test.launch
 python3 detectCheckers.py
 ```
 
+#### Launch main program with detection:
+```Bash
+python3 main.py
+```
 
-# RUN ROSBAG:
+
+# RUN ROSBAG FOR TESTING:
 ```Bash
 cd ~/catkin_ws/src/robot_checkers/Checkers_AI_modded
 rosbag play --pause my_bag.bag

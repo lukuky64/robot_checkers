@@ -1,3 +1,5 @@
+% this class is used to subscribe to a ROS topic and store the received data
+
 classdef Ros_subscriber < handle
     properties
         subscriber;
@@ -18,20 +20,11 @@ classdef Ros_subscriber < handle
             obj.subscriber = rossubscriber(topicName, messageType, @(src, msg) obj.callback(src, msg));
             obj.data = {};
             
-            % Create a timer object
-            obj.timerObj = timer('TimerFcn', @(~,~) obj.checkSubscriber(), ...
-                                 'Period', 0.1, ...
-                                 'ExecutionMode', 'fixedRate');
         end
         
         function callback(obj, ~, msg)  % ~ to ignore the src parameter
             %disp('Callback invoked'); % debugging message
             obj.data{end+1, 1} = msg.Data;
-        end
-        
-        function checkSubscriber(obj)
-            % This function can be empty as long as the callback function in the ROS subscriber is set to update obj.data
-            % Put additional code here to process the received data
         end
         
         function run(obj)

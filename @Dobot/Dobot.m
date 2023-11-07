@@ -117,13 +117,13 @@ classdef Dobot
                 end
             end
         end
-        function[] = edit_Record()
+        function in = edit_Record(in)
                       %% To edit a prerecorded step
             jointStateSubscriber = rossubscriber('/dobot_magician/joint_states'); % Create a ROS Subscriber to the topic joint_states
             pause(2); % Allow some time for a message to appear
             
+            trajectories = in;
             
-            i;
             
             i = input("enter step you want to change: ");
                 
@@ -140,22 +140,30 @@ classdef Dobot
         end
         function[] = run_Record(data)
                      %%
-
+            object = Blackout();
             trajectories = data;
             [targetJointTrajPub,targetJointTrajMsg] = rospublisher('/dobot_magician/target_joint_states');
             trajectoryPoint = rosmessage("trajectory_msgs/JointTrajectoryPoint");
             [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
             
-            pause(3);
+            pause(5);
+
             for i = 1:length(trajectories)
                 disp(['trajectory: ', num2str(i)]);
                 jointTarget = trajectories{1,i};
+            
+            status = object.activated();
+            if status == 1
+                Dobot.tool_State(0);
+                break;
+            end
+           
                 
             
                 trajectoryPoint.Positions = jointTarget;
                 targetJointTrajMsg.Points = trajectoryPoint;
                 send(targetJointTrajPub,targetJointTrajMsg);
-                pause(0.5);
+                pause(1);
                 % suction change happens at end of movement
                 toolStateMsg.Data = [trajectories{2,i}]; % Send 1 for on and 0 for off
                 

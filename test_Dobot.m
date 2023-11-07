@@ -70,7 +70,8 @@ i = input("enter step you want to view: ");
 
 %% load existing trajectores
 load("dobot_traj_examples.mat");
-%%
+
+%% Run through trajectories
 [targetJointTrajPub,targetJointTrajMsg] = rospublisher('/dobot_magician/target_joint_states');
 trajectoryPoint = rosmessage("trajectory_msgs/JointTrajectoryPoint");
 [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
@@ -97,5 +98,5 @@ end
 %%
 % Turn on the tool
 [toolStatePub, toolStateMsg] = rospublisher('/dobot_magician/target_tool_state');
-toolStateMsg.Data = [1]; % Send 1 for on and 0 for off 
+toolStateMsg.Data = [0]; % Send 1 for on and 0 for off 
 send(toolStatePub,toolStateMsg);

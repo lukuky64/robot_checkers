@@ -1,7 +1,7 @@
 %{ 
 This class is responsible for a robot's motion planning and the maintenance 
 of state information, such as joint state q. generates trajectories for a general, static SerialLink object
-passed in through constructor-arguement.
+passed in through constructor-argument.
 %}
 
 classdef MotionPlanner < handle
@@ -127,7 +127,7 @@ classdef MotionPlanner < handle
 
         % ---------- 4 ----------
         % this function returns trajectory that proceeds an EE grip-dropoff:
-        % it moves EE from square boardPos to above quare boardPos, and 
+        % it moves EE from square boardPos to above square boardPos, and 
         % then returns robot to home pose using joint interpolation.
         function traj = trajectorySquareToBin(self,boardPos)
             % transforms to board positions (half the height of a checkers'
@@ -277,13 +277,3 @@ classdef MotionPlanner < handle
         end
     end
 end
-
-
-
-
-
-
-
-
-
-
