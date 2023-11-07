@@ -1,3 +1,5 @@
+
+
 classdef Player < handle
     % Executive management of motion-planning operations.
     properties
@@ -27,6 +29,7 @@ classdef Player < handle
                     Tbin, IKmethod);
         end
 
+        % this method is repsponsible for planning the player's piece to move
         function [traj,toggleGripAfterIndex] = processTaskTrajectory(self, task)
             % moving Player's piece:
             movePositions = self.movePositions(task);

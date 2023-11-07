@@ -1,3 +1,5 @@
+# This class collects information from the Arduino via USB serial communication and publishes it to ROS topics
+
 #!/usr/bin/env python
 import serial
 import rospy
@@ -6,8 +8,7 @@ import os
 from std_msgs.msg import UInt8, Int32
 
 
-#--- codes for estop_state---
-
+#--- codes for target_safety_status on dobot magician ---
 # 0 = INVALID
 # 1 = DISCONNECTED
 # 2 = INITIALISING
@@ -28,7 +29,7 @@ def main():
     # Initialise ROS node
     rospy.init_node("arduino_serial_to_ros", anonymous=True)
 
-    # Create ROS publisher
+    # Create ROS publisher for game class
     pub = rospy.Publisher("eStop_state", UInt8, queue_size=10, latch=True)
 
     # Create ROS publisher for real DoBot Magician

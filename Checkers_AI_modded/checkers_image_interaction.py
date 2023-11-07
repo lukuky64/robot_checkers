@@ -34,6 +34,18 @@ Funcitonalities include:
 - A silky smoooth 60 FPS!
 
 Everest Witman - May 2014 - Marlboro College - Programming Workshop
+
+
+------------------------------------------------------------------------------------------------------------------
+Modification by: 	Lucas Moore
+Date: 				November 2023
+Purpose: 			To modify the checkers game to be used as a ROS node for the purpose of interacting with matlab
+
+Modifications:
+- Added ros_publisher class
+- Changed number of starting checkers for smaller game demonstration
+- allowed for interaction with the game through a camera as well as the original mouse input
+-------------------------------------------------------------------------------------------------------------------
 """
 
 import pygame, sys

@@ -1,3 +1,14 @@
+"""
+------------------------------------------------------------------------------------------------------------------
+Modification by: 	Lucas Moore
+Date: 				November 2023
+Purpose: 			To modify the checkers game to be used as a ROS node for the purpose of interacting with matlab
+
+Modifications:
+- Added user input to allow game to either be played via camera or via user input
+-------------------------------------------------------------------------------------------------------------------
+"""
+
 import checkers_image_interaction
 import checkers
 import gamebot

@@ -2,7 +2,7 @@ classdef GameBoard < handle
     properties
         gameSubscriber;  % Instance of the subscriber_gameBoard class
         localGameBoard;
-        timerObj;      % Timer object for running plotData
+        timerObj;      % Timer object for running createData
         real_location; % contains the localGameBoard data but converted to metres where the origin is 0,0 at the top left
         next_iteration;
         board_; % physical gameboard object class
@@ -13,21 +13,13 @@ classdef GameBoard < handle
     end
     
     methods
+
+        % subscribing to the actual game that is running in the background, publishing to a ROS topic
         function obj = GameBoard()
             obj.gameSubscriber = Ros_subscriber('/board_state', 'std_msgs/Int32MultiArray');
-    
-            % initialising the sideline
-            %obj.sideLineTr = transl(-0.1,0,0);
-            % assigning the checker height
-            %obj.checkerHeight_ = 0.005; % 5mm
-            % initialising and plotting the physical gameboard 
-            %Tboard = transl(0,0.2,0);
-            %obj.board_ = Board(0.32, 0.05, Tboard);
-            %figure(1);
-            %obj.board_.plotBoard();
             
             % Create a timer object
-            obj.timerObj = timer('TimerFcn', @(~,~) obj.plotData(), ...
+            obj.timerObj = timer('TimerFcn', @(~,~) obj.createData(), ...
                                  'Period', 0.25, ...             % Run every 0.25 seconds
                                  'ExecutionMode', 'fixedRate');
             obj.next_iteration = 0;
@@ -89,7 +81,8 @@ classdef GameBoard < handle
         %     obj.real_location{1} = combined_real_location;
         % end
 
-
+        
+        % This function will return the coordinates of checkers that have moved since the last state of the board
         function [movedFrom, movedTo, removedFrom] = compareCheckerStates(obj, previous, current)
             % Transpose the matrices to make them easier to work with
             previous = previous';
@@ -138,6 +131,7 @@ classdef GameBoard < handle
             removedFrom = obj.convertToNewOrigin(removedFrom);
         end
 
+        
         % Flips the 'y' axis so origin is bottom left
         function newLocation = convertToNewOrigin(obj, currentLocation)
             boardSize = 7;
@@ -147,6 +141,7 @@ classdef GameBoard < handle
             newLocation = currentLocation;
             
         end
+
 
         function Tr = convertIndexToTrans(obj, indexPos)
             width_ = obj.board_.squareSize;
@@ -167,6 +162,7 @@ classdef GameBoard < handle
             Tr = [rotation_, rotatedVector; 0 0 0 1];
         end
 
+
         % plotting transforms for visualisation
         function plotTr(obj, Tr, colour)
             figure(1);
@@ -177,6 +173,7 @@ classdef GameBoard < handle
             end
         end
         
+
         % creating a task for the robot players to complete. Storing new
         % tasks at the end of the class variable tasks_ cell
         function assignTasks(obj, movedFrom, movedTo, removedFrom)
@@ -225,8 +222,7 @@ classdef GameBoard < handle
         end
 
 
-
-        function plotData(obj)
+        function createData(obj)
             % Check if data is empty
             if isempty(obj.gameSubscriber.data)
                 disp('No data...');
@@ -252,36 +248,42 @@ classdef GameBoard < handle
             obj.localGameBoard{end+1} = getLastCellAsMatrix(obj);
 
             obj.next_iteration = length(obj.localGameBoard);
+
+            %obj.plotData();
+
+        end
+
+
+        function plotData(obj)
+            Plot the data
+            figure(2); % Reuse the same figure
+            cla; % Clear the current figure
             
-            % Plot the data
-            %figure(2); % Reuse the same figure
-            %cla; % Clear the current figure
-            
-            % load new gameboard state
+            load new gameboard state
             x = obj.localGameBoard{end}(1, :);
             y = obj.localGameBoard{end}(2, :);
             color = obj.localGameBoard{end}(3, :);
         
-            % batch plotting red and blue
+            batch plotting red and blue
             idx_red = (color == 1);
             idx_blue = ~idx_red;
             
-            %scatter(x(idx_red), y(idx_red), 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
-            %hold on;
-            %scatter(x(idx_blue), y(idx_blue), 'o', 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
-            %hold off;
+            scatter(x(idx_red), y(idx_red), 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
+            hold on;
+            scatter(x(idx_blue), y(idx_blue), 'o', 'MarkerEdgeColor', 'b', 'MarkerFaceColor', 'b');
+            hold off;
 
-            % Reverse the direction of the Y-axis
-            %set(gca, 'YDir', 'reverse');
+            Reverse the direction of the Y-axis
+            set(gca, 'YDir', 'reverse');
             
-            % Make the axis square
-            %axis square;
-            %xlabel('X-axis');
-            %ylabel('Y-axis');
-            %title('Game Map Coordinates');
-
+            Make the axis square
+            axis square;
+            xlabel('X-axis');
+            ylabel('Y-axis');
+            title('Game Map Coordinates');
         end
         
+
         function run(obj)
             obj.gameSubscriber.run(); % Start running the gameBoard
             
@@ -289,6 +291,7 @@ classdef GameBoard < handle
             start(obj.timerObj);
         end
         
+
         function stop(obj)
             obj.gameSubscriber.stop(); % Stop the gameBoard
             
