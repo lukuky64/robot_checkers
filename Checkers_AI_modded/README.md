@@ -5,9 +5,9 @@ https://github.com/Hsankesara/Draughts-AI
 ```
 
 Modifications:
-Small modifications have been made to the checkers.py file using new
-python classes to publish the current gameboard state to a ROS node. 
-This gameboard state is an array containing the location and occupancy
+Small modifications have been made to the game to publish the current gameboard state to a ROS node.
+An additional file is created to detect checkers using image segmentation and interacts with the main game
+if enabled through user input. This gameboard state is an array containing the location and occupancy
 colour of each checker on the board.
 
 
